@@ -33,20 +33,20 @@ public class ReviewService {
     public ReviewDto.Response createReview(Long userId, ReviewDto.Request request) {
         // 사용자 조회
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException(\"사용자를 찾을 수 없습니다: \" + userId));
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + userId));
         
         // 상품 조회
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new RuntimeException(\"상품을 찾을 수 없습니다: \" + request.getProductId()));
+                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다: " + request.getProductId()));
         
         // 중복 리뷰 체크
         if (reviewRepository.existsByUserIdAndProductId(userId, request.getProductId())) {
-            throw new RuntimeException(\"이미 해당 상품에 대한 리뷰를 작성하셨습니다.\");
+            throw new RuntimeException("이미 해당 상품에 대한 리뷰를 작성하셨습니다.");
         }
         
         // 평점 유효성 검사
         if (request.getRating() < 1 || request.getRating() > 5) {
-            throw new RuntimeException(\"평점은 1~5점 사이여야 합니다.\");
+            throw new RuntimeException("평점은 1~5점 사이여야 합니다.");
         }
         
         // 리뷰 생성
@@ -67,16 +67,16 @@ public class ReviewService {
     @Transactional
     public ReviewDto.Response updateReview(Long reviewId, Long userId, ReviewDto.UpdateRequest request) {
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new RuntimeException(\"리뷰를 찾을 수 없습니다: \" + reviewId));
+                .orElseThrow(() -> new RuntimeException("리뷰를 찾을 수 없습니다: " + reviewId));
         
         // 작성자 확인
         if (!review.getUser().getId().equals(userId)) {
-            throw new RuntimeException(\"본인이 작성한 리뷰만 수정할 수 있습니다.\");
+            throw new RuntimeException("본인이 작성한 리뷰만 수정할 수 있습니다.");
         }
         
         // 평점 유효성 검사
         if (request.getRating() != null && (request.getRating() < 1 || request.getRating() > 5)) {
-            throw new RuntimeException(\"평점은 1~5점 사이여야 합니다.\");
+            throw new RuntimeException("평점은 1~5점 사이여야 합니다.");
         }
         
         // 리뷰 수정
@@ -97,11 +97,11 @@ public class ReviewService {
     @Transactional
     public void deleteReview(Long reviewId, Long userId) {
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new RuntimeException(\"리뷰를 찾을 수 없습니다: \" + reviewId));
+                .orElseThrow(() -> new RuntimeException("리뷰를 찾을 수 없습니다: " + reviewId));
         
         // 작성자 확인
         if (!review.getUser().getId().equals(userId)) {
-            throw new RuntimeException(\"본인이 작성한 리뷰만 삭제할 수 있습니다.\");
+            throw new RuntimeException("본인이 작성한 리뷰만 삭제할 수 있습니다.");
         }
         
         reviewRepository.delete(review);
@@ -158,7 +158,7 @@ public class ReviewService {
      */
     public ReviewDto.Response getReview(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new RuntimeException(\"리뷰를 찾을 수 없습니다: \" + reviewId));
+                .orElseThrow(() -> new RuntimeException("리뷰를 찾을 수 없습니다: " + reviewId));
         
         return convertToDto(review);
     }

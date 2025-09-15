@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.List;
@@ -39,8 +40,9 @@ public class AdminService {
         
         // 총 매출 (모든 주문의 총액 합계)
         Double totalRevenue = orderRepository.findAll().stream()
-                .mapToDouble(Order::getTotalAmount)
-                .sum();
+                .map(Order::getTotalAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .doubleValue();
         
         // 오늘 주문 및 매출
         LocalDateTime todayStart = LocalDate.now().atStartOfDay();
@@ -49,8 +51,9 @@ public class AdminService {
         List<Order> todayOrders = orderRepository.findByCreatedAtBetween(todayStart, todayEnd);
         long todayOrderCount = todayOrders.size();
         double todayRevenue = todayOrders.stream()
-                .mapToDouble(Order::getTotalAmount)
-                .sum();
+                .map(Order::getTotalAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .doubleValue();
         
         // 최근 주문 (최근 10개)
         List<AdminDto.RecentOrder> recentOrders = orderRepository.findTop10ByOrderByCreatedAtDesc()
@@ -139,8 +142,9 @@ public class AdminService {
         List<Order> orders = orderRepository.findByCreatedAtBetween(startDate, endDate);
         
         double totalRevenue = orders.stream()
-                .mapToDouble(Order::getTotalAmount)
-                .sum();
+                .map(Order::getTotalAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .doubleValue();
         
         long totalOrders = orders.size();
         double averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
@@ -174,7 +178,7 @@ public class AdminService {
                 .orderId(order.getId())
                 .userEmail(order.getUser().getEmail())
                 .userName(order.getUser().getName())
-                .totalAmount(order.getTotalAmount())
+                .totalAmount(order.getTotalAmount().doubleValue())
                 .status(order.getStatus().name())
                 .createdAt(order.getCreatedAt())
                 .build();
@@ -185,8 +189,8 @@ public class AdminService {
                 .map(item -> AdminDto.OrderItemInfo.builder()
                         .productName(item.getProduct().getName())
                         .quantity(item.getQuantity())
-                        .price(item.getPrice())
-                        .totalPrice(item.getPrice() * item.getQuantity())
+                        .price(item.getPrice().doubleValue())
+                        .totalPrice(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())).doubleValue())
                         .build())
                 .collect(Collectors.toList());
         
@@ -194,7 +198,7 @@ public class AdminService {
                 .orderId(order.getId())
                 .userEmail(order.getUser().getEmail())
                 .userName(order.getUser().getName())
-                .totalAmount(order.getTotalAmount())
+                .totalAmount(order.getTotalAmount().doubleValue())
                 .status(order.getStatus().name())
                 .itemCount(order.getOrderItems().size())
                 .createdAt(order.getCreatedAt())
@@ -208,8 +212,9 @@ public class AdminService {
         List<Order> userOrders = orderRepository.findByUserId(user.getId());
         long orderCount = userOrders.size();
         double totalSpent = userOrders.stream()
-                .mapToDouble(Order::getTotalAmount)
-                .sum();
+                .map(Order::getTotalAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .doubleValue();
         
         return AdminDto.UserManagement.builder()
                 .userId(user.getId())
@@ -236,8 +241,9 @@ public class AdminService {
         double revenue = orders.stream()
                 .flatMap(order -> order.getOrderItems().stream())
                 .filter(item -> item.getProduct().getId().equals(product.getId()))
-                .mapToDouble(item -> item.getPrice() * item.getQuantity())
-                .sum();
+                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .doubleValue();
         
         // 평점 계산
         Double averageRating = reviewRepository.findAverageRatingByProductId(product.getId());
@@ -249,7 +255,7 @@ public class AdminService {
                 .productId(product.getId())
                 .productName(product.getName())
                 .categoryName(product.getCategory().getName())
-                .price(product.getPrice())
+                .price(product.getPrice().doubleValue())
                 .stockQuantity(product.getStockQuantity())
                 .isActive(true) // Product 엔티티에 isActive 필드 추가 필요
                 .totalSold(totalSold)

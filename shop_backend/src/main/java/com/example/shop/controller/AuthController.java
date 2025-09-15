@@ -1,7 +1,9 @@
 package com.example.shop.controller;
 
 import com.example.shop.dto.AuthDto;
+import com.example.shop.dto.UserDto;
 import com.example.shop.service.AuthService;
+import com.example.shop.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,6 +22,44 @@ import jakarta.validation.Valid;
 public class AuthController {
     
     private final AuthService authService;
+    private final UserService userService;
+    
+    /**
+     * 회원가입
+     */
+    @PostMapping("/register")
+    @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다.")
+    public ResponseEntity<AuthDto.RegisterResponse> register(
+            @Valid @RequestBody AuthDto.RegisterRequest request) {
+        
+        // AuthDto.RegisterRequest를 UserDto.Request로 변환
+        UserDto.Request userRequest = UserDto.Request.builder()
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .name(request.getName())
+                .phone(request.getPhone())
+                .address(request.getAddress())
+                .build();
+        
+        // 사용자 생성
+        UserDto.Response userResponse = userService.createUser(userRequest);
+        
+        // AuthDto.UserInfo로 변환
+        AuthDto.UserInfo userInfo = AuthDto.UserInfo.builder()
+                .id(userResponse.getId())
+                .email(userResponse.getEmail())
+                .name(userResponse.getName())
+                .role(userResponse.getRole().name())
+                .build();
+        
+        // 응답 생성
+        AuthDto.RegisterResponse response = AuthDto.RegisterResponse.builder()
+                .message("회원가입이 성공적으로 완료되었습니다.")
+                .userInfo(userInfo)
+                .build();
+        
+        return ResponseEntity.ok(response);
+    }
     
     /**
      * 로그인
@@ -66,7 +106,7 @@ public class AuthController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
         if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.unauthorized().build();
+            return ResponseEntity.status(401).build();
         }
         
         String email = authentication.getName();
@@ -85,7 +125,7 @@ public class AuthController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
         if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.unauthorized().build();
+            return ResponseEntity.status(401).build();
         }
         
         String email = authentication.getName();

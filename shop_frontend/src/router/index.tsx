@@ -8,6 +8,7 @@ import AdminLayout from '../components/layout/AdminLayout';
 
 // 페이지 컴포넌트들
 import HomePage from '../pages/HomePage';
+import ProductListPage from '../pages/ProductListPage';
 import ProductDetailPage from '../pages/ProductDetailPage';
 import CartPage from '../pages/CartPage';
 import CheckoutPage from '../pages/CheckoutPage';
@@ -80,6 +81,10 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: <HomePage />,
+      },
+      {
+        path: 'products',
+        element: <ProductListPage />,
       },
       {
         path: 'products/:id',

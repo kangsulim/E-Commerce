@@ -1,5 +1,25 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  Box,
+  Container,
+  Typography,
+  Button,
+  Paper,
+  Alert,
+  Stack,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  useTheme
+} from '@mui/material';
+import {
+  Error as ErrorIcon,
+  ExpandMore as ExpandMoreIcon,
+  Home as HomeIcon,
+  Refresh as RefreshIcon,
+  Email as EmailIcon
+} from '@mui/icons-material';
 
 interface Props {
   children: ReactNode;
@@ -57,93 +77,160 @@ class ErrorBoundary extends Component<Props, State> {
 
       // Default error UI
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-          <div className="max-w-lg w-full bg-white rounded-lg shadow-lg p-8 text-center">
-            {/* Error Icon */}
-            <div className="w-16 h-16 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
-              <svg
-                className="w-8 h-8 text-red-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+        <Box
+          sx={{
+            minHeight: '100vh',
+            bgcolor: 'grey.50',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            py: 4
+          }}
+        >
+          <Container maxWidth="md">
+            <Paper elevation={3} sx={{ p: 4, textAlign: 'center' }}>
+              {/* Error Icon */}
+              <Box
+                sx={{
+                  width: 80,
+                  height: 80,
+                  mx: 'auto',
+                  mb: 3,
+                  bgcolor: 'error.light',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                />
-              </svg>
-            </div>
+                <ErrorIcon sx={{ fontSize: 40, color: 'error.main' }} />
+              </Box>
 
-            {/* Error Message */}
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              앗! 문제가 발생했습니다
-            </h1>
-            <p className="text-gray-600 mb-6">
-              예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해주세요.
-            </p>
+              {/* Error Message */}
+              <Typography variant="h4" fontWeight="bold" sx={{ mb: 2 }}>
+                앗! 문제가 발생했습니다
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+                예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해주세요.
+              </Typography>
 
-            {/* Error Details (in development) */}
-            {process.env.NODE_ENV === 'development' && this.state.error && (
-              <details className="text-left mb-6 p-4 bg-gray-100 rounded-lg">
-                <summary className="cursor-pointer font-medium text-sm text-gray-700 mb-2">
-                  개발자 정보 (클릭하여 펼치기)
-                </summary>
-                <div className="text-xs text-gray-600 space-y-2">
-                  <div>
-                    <strong>Error:</strong> {this.state.error.message}
-                  </div>
-                  <div>
-                    <strong>Stack:</strong>
-                    <pre className="whitespace-pre-wrap bg-gray-50 p-2 rounded mt-1 text-xs">
-                      {this.state.error.stack}
-                    </pre>
-                  </div>
-                  {this.state.errorInfo && (
-                    <div>
-                      <strong>Component Stack:</strong>
-                      <pre className="whitespace-pre-wrap bg-gray-50 p-2 rounded mt-1 text-xs">
-                        {this.state.errorInfo.componentStack}
-                      </pre>
-                    </div>
-                  )}
-                </div>
-              </details>
-            )}
+              {/* Error Details (in development) */}
+              {process.env.NODE_ENV === 'development' && this.state.error && (
+                <Box sx={{ mb: 4, textAlign: 'left' }}>
+                  <Accordion>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                      <Typography variant="subtitle2">
+                        개발자 정보 (클릭하여 펼치기)
+                      </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Stack spacing={2}>
+                        <Box>
+                          <Typography variant="subtitle2" fontWeight="bold">
+                            Error:
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {this.state.error.message}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography variant="subtitle2" fontWeight="bold">
+                            Stack:
+                          </Typography>
+                          <Paper
+                            variant="outlined"
+                            sx={{
+                              p: 2,
+                              bgcolor: 'grey.50',
+                              maxHeight: 200,
+                              overflow: 'auto'
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              component="pre"
+                              sx={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}
+                            >
+                              {this.state.error.stack}
+                            </Typography>
+                          </Paper>
+                        </Box>
+                        {this.state.errorInfo && (
+                          <Box>
+                            <Typography variant="subtitle2" fontWeight="bold">
+                              Component Stack:
+                            </Typography>
+                            <Paper
+                              variant="outlined"
+                              sx={{
+                                p: 2,
+                                bgcolor: 'grey.50',
+                                maxHeight: 200,
+                                overflow: 'auto'
+                              }}
+                            >
+                              <Typography
+                                variant="caption"
+                                component="pre"
+                                sx={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}
+                              >
+                                {this.state.errorInfo.componentStack}
+                              </Typography>
+                            </Paper>
+                          </Box>
+                        )}
+                      </Stack>
+                    </AccordionDetails>
+                  </Accordion>
+                </Box>
+              )}
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button
-                onClick={this.handleReload}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              {/* Action Buttons */}
+              <Stack
+                direction={{ xs: 'column', sm: 'row' }}
+                spacing={2}
+                justifyContent="center"
+                sx={{ mb: 4 }}
               >
-                다시 시도
-              </button>
-              <Link
-                to="/"
-                onClick={this.handleGoHome}
-                className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium"
-              >
-                홈으로 이동
-              </Link>
-            </div>
-
-            {/* Support Link */}
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <p className="text-sm text-gray-500">
-                문제가 계속 발생한다면{' '}
-                <a
-                  href="mailto:support@example.com"
-                  className="text-blue-600 hover:text-blue-700 underline"
+                <Button
+                  variant="contained"
+                  startIcon={<RefreshIcon />}
+                  onClick={this.handleReload}
+                  size="large"
                 >
-                  고객지원
-                </a>
-                으로 문의해주세요.
-              </p>
-            </div>
-          </div>
-        </div>
+                  다시 시도
+                </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<HomeIcon />}
+                  component={Link}
+                  to="/"
+                  onClick={this.handleGoHome}
+                  size="large"
+                >
+                  홈으로 이동
+                </Button>
+              </Stack>
+
+              {/* Support Link */}
+              <Box sx={{ pt: 3, borderTop: 1, borderColor: 'divider' }}>
+                <Typography variant="body2" color="text.secondary">
+                  문제가 계속 발생한다면{' '}
+                  <Button
+                    variant="text"
+                    size="small"
+                    startIcon={<EmailIcon />}
+                    href="mailto:support@example.com"
+                    sx={{ p: 0, minWidth: 'auto' }}
+                  >
+                    고객지원
+                  </Button>
+                  으로 문의해주세요.
+                </Typography>
+              </Box>
+            </Paper>
+          </Container>
+        </Box>
       );
     }
 
@@ -191,21 +278,22 @@ export const SimpleErrorBoundary: React.FC<SimpleErrorBoundaryProps> = ({
   if (hasError) {
     return (
       fallback || (
-        <div className="p-6 bg-red-50 border border-red-200 rounded-lg text-center">
-          <div className="text-red-600 mb-4">
-            <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-          </div>
-          <h3 className="text-lg font-medium text-red-800 mb-2">로딩 오류</h3>
-          <p className="text-red-600 mb-4">컴포넌트를 불러오는 중 오류가 발생했습니다.</p>
-          <button
-            onClick={resetError}
-            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
-          >
-            다시 시도
-          </button>
-        </div>
+        <Alert
+          severity="error"
+          action={
+            <Button color="inherit" size="small" onClick={resetError}>
+              다시 시도
+            </Button>
+          }
+          sx={{ m: 2 }}
+        >
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+            로딩 오류
+          </Typography>
+          <Typography variant="body2">
+            컴포넌트를 불러오는 중 오류가 발생했습니다.
+          </Typography>
+        </Alert>
       )
     );
   }

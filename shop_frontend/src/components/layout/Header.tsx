@@ -1,11 +1,49 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+  Button,
+  IconButton,
+  Menu,
+  MenuItem,
+  Container,
+  Badge,
+  Avatar,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  useTheme,
+  useMediaQuery,
+  alpha
+} from '@mui/material';
+import {
+  Menu as MenuIcon,
+  Search as SearchIcon,
+  ShoppingCart as CartIcon,
+  Person as PersonIcon,
+  Home as HomeIcon,
+  Store as StoreIcon,
+  AdminPanelSettings as AdminIcon,
+  ExitToApp as LogoutIcon,
+  AccountCircle as AccountIcon
+} from '@mui/icons-material';
 import { useAuth, useIsAdmin } from '../../hooks/useAuth';
 import SearchBar from '../search/SearchBar';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
+  
   const { user, isAuthenticated, logout } = useAuth();
   const isAdmin = useIsAdmin();
 
@@ -13,6 +51,7 @@ const Header: React.FC = () => {
     logout();
     navigate('/');
     setIsMenuOpen(false);
+    setUserMenuAnchor(null);
   };
 
   const handleSearch = (query: string) => {
@@ -20,221 +59,337 @@ const Header: React.FC = () => {
     setIsMenuOpen(false);
   };
 
+  const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setUserMenuAnchor(event.currentTarget);
+  };
+
+  const handleUserMenuClose = () => {
+    setUserMenuAnchor(null);
+  };
+
+  const navigationItems = [
+    { label: '홈', path: '/', icon: <HomeIcon /> },
+    { label: '상품', path: '/products', icon: <StoreIcon /> },
+    ...(isAuthenticated ? [{ label: '장바구니', path: '/cart', icon: <CartIcon /> }] : []),
+    ...(isAdmin ? [{ label: '관리자', path: '/admin', icon: <AdminIcon /> }] : [])
+  ];
+
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto container-padding">
-        <div className="flex items-center justify-between h-16 gap-4">
+    <AppBar 
+      position="sticky" 
+      elevation={1}
+      sx={{ 
+        bgcolor: 'white',
+        color: 'text.primary',
+        borderBottom: `1px solid ${theme.palette.divider}`
+      }}
+    >
+      <Container maxWidth="xl">
+        <Toolbar sx={{ py: 1 }}>
           {/* 로고 */}
-          <Link 
-            to="/" 
-            className="text-2xl font-bold text-primary-600 hover:text-primary-700 transition-colors flex-shrink-0"
+          <Typography
+            variant="h5"
+            component={Link}
+            to="/"
+            sx={{
+              fontWeight: 'bold',
+              color: theme.palette.primary.main,
+              textDecoration: 'none',
+              flexShrink: 0,
+              mr: 4,
+              '&:hover': {
+                color: theme.palette.primary.dark
+              }
+            }}
           >
             {import.meta.env.VITE_APP_NAME || '온라인 쇼핑몰'}
-          </Link>
+          </Typography>
 
           {/* 중앙 검색바 (데스크톱) */}
-          <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
-            <SearchBar
-              onSearch={handleSearch}
-              placeholder="상품명, 브랜드명으로 검색"
-              className="w-full"
-              showSuggestions={true}
-            />
-          </div>
+          {!isMobile && (
+            <Box sx={{ flexGrow: 1, maxWidth: 600, mx: 4 }}>
+              <SearchBar
+                onSearch={handleSearch}
+                placeholder="상품명, 브랜드명으로 검색"
+                className="w-full"
+                showSuggestions={true}
+              />
+            </Box>
+          )}
 
           {/* 네비게이션 (데스크톱) */}
-          <nav className="hidden md:flex items-center space-x-8 flex-shrink-0">
-            <Link 
-              to="/" 
-              className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
-            >
-              홈
-            </Link>
-            <Link 
-              to="/products" 
-              className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
-            >
-              상품
-            </Link>
-            {isAuthenticated && (
-              <Link 
-                to="/cart" 
-                className="text-gray-700 hover:text-primary-600 font-medium transition-colors relative"
-              >
-                장바구니
-                {/* 장바구니 아이콘 */}
-                <svg className="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5M7 13h10m0 0l1.1 5M9 19.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm10 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
-                </svg>
-              </Link>
-            )}
-            {isAdmin && (
-              <Link 
-                to="/admin" 
-                className="text-orange-600 hover:text-orange-700 font-medium transition-colors"
-              >
-                관리자
-              </Link>
-            )}
-          </nav>
+          {!isMobile && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
+              {navigationItems.map((item) => (
+                <Button
+                  key={item.path}
+                  component={Link}
+                  to={item.path}
+                  startIcon={item.icon}
+                  sx={{
+                    color: 'text.primary',
+                    fontWeight: 'medium',
+                    textTransform: 'none',
+                    '&:hover': {
+                      color: theme.palette.primary.main,
+                      bgcolor: alpha(theme.palette.primary.main, 0.04)
+                    }
+                  }}
+                >
+                  {item.label}
+                </Button>
+              ))}
+            </Box>
+          )}
+
+          <Box sx={{ flexGrow: isMobile ? 1 : 0 }} />
 
           {/* 우측 메뉴 */}
-          <div className="hidden md:flex items-center space-x-4 flex-shrink-0">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {/* 모바일 검색 버튼 */}
+            {isMobile && (
+              <IconButton
+                component={Link}
+                to="/products"
+                sx={{ color: 'text.primary' }}
+              >
+                <SearchIcon />
+              </IconButton>
+            )}
+
+            {/* 장바구니 (모바일에서만) */}
+            {isMobile && isAuthenticated && (
+              <IconButton
+                component={Link}
+                to="/cart"
+                sx={{ color: 'text.primary' }}
+              >
+                <Badge badgeContent={0} color="primary">
+                  <CartIcon />
+                </Badge>
+              </IconButton>
+            )}
+
+            {/* 사용자 메뉴 */}
             {isAuthenticated ? (
               <>
-                <span className="text-sm text-gray-600">
-                  안녕하세요, <span className="font-medium text-gray-900">{user?.name}</span>님
-                </span>
-                <Link 
-                  to="/my-page" 
-                  className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
+                <IconButton onClick={handleUserMenuOpen} sx={{ ml: 1 }}>
+                  <Avatar 
+                    sx={{ 
+                      width: 32, 
+                      height: 32, 
+                      bgcolor: theme.palette.primary.main,
+                      fontSize: '0.875rem'
+                    }}
+                  >
+                    {user?.name?.[0]?.toUpperCase() || 'U'}
+                  </Avatar>
+                </IconButton>
+                <Menu
+                  anchorEl={userMenuAnchor}
+                  open={Boolean(userMenuAnchor)}
+                  onClose={handleUserMenuClose}
+                  transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                  anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                 >
-                  마이페이지
-                </Link>
-                <button 
-                  onClick={handleLogout}
-                  className="btn-secondary text-sm"
-                >
-                  로그아웃
-                </button>
+                  <MenuItem disabled>
+                    <Typography variant="body2" color="text.secondary">
+                      안녕하세요, {user?.name}님
+                    </Typography>
+                  </MenuItem>
+                  <Divider />
+                  <MenuItem
+                    component={Link}
+                    to="/my-page"
+                    onClick={handleUserMenuClose}
+                  >
+                    <ListItemIcon>
+                      <AccountIcon />
+                    </ListItemIcon>
+                    마이페이지
+                  </MenuItem>
+                  {isAdmin && (
+                    <MenuItem
+                      component={Link}
+                      to="/admin"
+                      onClick={handleUserMenuClose}
+                    >
+                      <ListItemIcon>
+                        <AdminIcon />
+                      </ListItemIcon>
+                      관리자
+                    </MenuItem>
+                  )}
+                  <Divider />
+                  <MenuItem onClick={handleLogout}>
+                    <ListItemIcon>
+                      <LogoutIcon />
+                    </ListItemIcon>
+                    로그아웃
+                  </MenuItem>
+                </Menu>
               </>
             ) : (
-              <>
-                <Link 
-                  to="/login" 
-                  className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button
+                  component={Link}
+                  to="/login"
+                  variant="text"
+                  sx={{
+                    color: 'text.primary',
+                    textTransform: 'none',
+                    fontWeight: 'medium'
+                  }}
                 >
                   로그인
-                </Link>
-                <Link 
-                  to="/register" 
-                  className="btn-primary text-sm"
+                </Button>
+                <Button
+                  component={Link}
+                  to="/register"
+                  variant="contained"
+                  size="small"
+                  sx={{
+                    textTransform: 'none',
+                    fontWeight: 'medium',
+                    borderRadius: 2
+                  }}
                 >
                   회원가입
-                </Link>
-              </>
+                </Button>
+              </Box>
             )}
-          </div>
 
-          {/* 모바일 검색 + 메뉴 버튼 */}
-          <div className="flex items-center gap-2 md:hidden">
-            {/* 모바일 검색 버튼 */}
-            <Link
-              to="/products"
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </Link>
-            
             {/* 모바일 메뉴 버튼 */}
-            <button 
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {isMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* 모바일 검색바 (lg 미만에서만 표시) */}
-        <div className="lg:hidden pb-4">
-          <SearchBar
-            onSearch={handleSearch}
-            placeholder="상품 검색"
-            className="w-full"
-            showSuggestions={false}
-          />
-        </div>
-
-        {/* 모바일 메뉴 */}
-        {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4">
-            <nav className="flex flex-col space-y-4">
-              <Link 
-                to="/" 
-                className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
-                onClick={() => setIsMenuOpen(false)}
+            {isMobile && (
+              <IconButton
+                onClick={() => setIsMenuOpen(true)}
+                sx={{ ml: 1, color: 'text.primary' }}
               >
-                홈
-              </Link>
-              <Link 
-                to="/products" 
-                className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                상품
-              </Link>
-              {isAuthenticated && (
-                <Link 
-                  to="/cart" 
-                  className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  장바구니
-                </Link>
-              )}
-              {isAdmin && (
-                <Link 
-                  to="/admin" 
-                  className="text-orange-600 hover:text-orange-700 font-medium transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  관리자
-                </Link>
-              )}
-              
-              <div className="pt-4 border-t border-gray-200">
-                {isAuthenticated ? (
-                  <>
-                    <div className="text-sm text-gray-600 mb-4">
-                      안녕하세요, <span className="font-medium text-gray-900">{user?.name}</span>님
-                    </div>
-                    <Link 
-                      to="/my-page" 
-                      className="block text-gray-700 hover:text-primary-600 font-medium transition-colors mb-4"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      마이페이지
-                    </Link>
-                    <button 
-                      onClick={handleLogout}
-                      className="btn-secondary text-sm w-full"
-                    >
-                      로그아웃
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link 
-                      to="/login" 
-                      className="block text-gray-700 hover:text-primary-600 font-medium transition-colors mb-4"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      로그인
-                    </Link>
-                    <Link 
-                      to="/register" 
-                      className="btn-primary text-sm w-full inline-block text-center"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      회원가입
-                    </Link>
-                  </>
-                )}
-              </div>
-            </nav>
-          </div>
+                <MenuIcon />
+              </IconButton>
+            )}
+          </Box>
+        </Toolbar>
+
+        {/* 모바일 검색바 */}
+        {isMobile && (
+          <Box sx={{ pb: 2, px: 2 }}>
+            <SearchBar
+              onSearch={handleSearch}
+              placeholder="상품 검색"
+              className="w-full"
+              showSuggestions={false}
+            />
+          </Box>
         )}
-      </div>
-    </header>
+      </Container>
+
+      {/* 모바일 드로어 메뉴 */}
+      <Drawer
+        anchor="right"
+        open={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: 280,
+            pt: 2
+          }
+        }}
+      >
+        <Box sx={{ px: 2, pb: 2 }}>
+          <Typography variant="h6" fontWeight="bold">
+            메뉴
+          </Typography>
+        </Box>
+        <Divider />
+        
+        <List>
+          {navigationItems.map((item) => (
+            <ListItem
+              key={item.path}
+              component={Link}
+              to={item.path}
+              onClick={() => setIsMenuOpen(false)}
+              sx={{
+                '&:hover': {
+                  bgcolor: alpha(theme.palette.primary.main, 0.04)
+                }
+              }}
+            >
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.label} />
+            </ListItem>
+          ))}
+        </List>
+
+        <Divider sx={{ my: 1 }} />
+
+        {/* 모바일 사용자 메뉴 */}
+        <List>
+          {isAuthenticated ? (
+            <>
+              <ListItem>
+                <ListItemIcon>
+                  <Avatar 
+                    sx={{ 
+                      width: 24, 
+                      height: 24, 
+                      bgcolor: theme.palette.primary.main,
+                      fontSize: '0.75rem'
+                    }}
+                  >
+                    {user?.name?.[0]?.toUpperCase() || 'U'}
+                  </Avatar>
+                </ListItemIcon>
+                <ListItemText 
+                  primary={`${user?.name}님`}
+                  secondary="안녕하세요!"
+                />
+              </ListItem>
+              <ListItem
+                component={Link}
+                to="/my-page"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <ListItemIcon>
+                  <AccountIcon />
+                </ListItemIcon>
+                <ListItemText primary="마이페이지" />
+              </ListItem>
+              <ListItem onClick={handleLogout}>
+                <ListItemIcon>
+                  <LogoutIcon />
+                </ListItemIcon>
+                <ListItemText primary="로그아웃" />
+              </ListItem>
+            </>
+          ) : (
+            <>
+              <ListItem
+                component={Link}
+                to="/login"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <ListItemIcon>
+                  <PersonIcon />
+                </ListItemIcon>
+                <ListItemText primary="로그인" />
+              </ListItem>
+              <ListItem
+                component={Link}
+                to="/register"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <ListItemIcon>
+                  <AccountIcon />
+                </ListItemIcon>
+                <ListItemText primary="회원가입" />
+              </ListItem>
+            </>
+          )}
+        </List>
+      </Drawer>
+    </AppBar>
   );
 };
 

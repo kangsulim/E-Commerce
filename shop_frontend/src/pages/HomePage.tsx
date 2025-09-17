@@ -1,170 +1,326 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import {
+  Box,
+  Container,
+  Typography,
+  Button,
+  Grid2,
+  Card,
+  CardContent,
+  TextField,
+  InputAdornment,
+  Avatar,
+  Rating,
+  Chip,
+  Paper,
+  Stack,
+  Divider,
+  useTheme,
+  alpha
+} from '@mui/material';
+import {
+  Search as SearchIcon,
+  LocalShipping as ShippingIcon,
+  Diamond as DiamondIcon,
+  Security as SecurityIcon,
+  Email as EmailIcon
+} from '@mui/icons-material';
 import FeaturedProducts from '../components/home/FeaturedProducts';
 import CategoryPreview, { SpecialCategoryBanner } from '../components/home/CategoryPreview';
 import SearchBar from '../components/search/SearchBar';
 
 const HomePage: React.FC = () => {
+  const theme = useTheme();
+
   const handleSearch = (query: string) => {
     // 검색 처리는 SearchBar 컴포넌트 내부에서 자동으로 처리됨
   };
 
   return (
-    <div className="min-h-screen">
+    <Box>
       {/* 히어로 섹션 */}
-      <section className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white overflow-hidden">
+      <Box
+        sx={{
+          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 50%, ${theme.palette.primary.dark} 100%)`,
+          color: 'white',
+          position: 'relative',
+          overflow: 'hidden',
+          minHeight: '60vh'
+        }}
+      >
         {/* 배경 패턴 */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-20 h-20 border border-white rounded-full"></div>
-          <div className="absolute top-32 right-20 w-16 h-16 border border-white rounded-full"></div>
-          <div className="absolute bottom-20 left-1/4 w-12 h-12 border border-white rounded-full"></div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            opacity: 0.1,
+            '&::before, &::after': {
+              content: '""',
+              position: 'absolute',
+              border: '2px solid white',
+              borderRadius: '50%'
+            },
+            '&::before': {
+              top: 40,
+              left: 40,
+              width: 80,
+              height: 80
+            },
+            '&::after': {
+              top: 128,
+              right: 80,
+              width: 64,
+              height: 64
+            }
+          }}
+        />
+
+        <Container maxWidth="lg" sx={{ position: 'relative', py: 10 }}>
+          <Box textAlign="center">
+            <Typography
+              variant="h1"
+              sx={{
+                fontSize: { xs: '2.5rem', md: '4rem' },
+                fontWeight: 'bold',
+                mb: 3,
+                lineHeight: 1.2
+              }}
+            >
               최고의 쇼핑 경험을<br />
-              <span className="text-yellow-300">만나보세요</span>
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
+              <Box component="span" sx={{ color: theme.palette.warning.main }}>
+                만나보세요
+              </Box>
+            </Typography>
+
+            <Typography
+              variant="h5"
+              sx={{
+                mb: 4,
+                color: alpha(theme.palette.common.white, 0.9),
+                maxWidth: 600,
+                mx: 'auto'
+              }}
+            >
               다양한 상품과 빠른 배송으로 새로운 쇼핑의 즐거움을 선사합니다
-            </p>
-            
+            </Typography>
+
             {/* 히어로 검색바 */}
-            <div className="max-w-2xl mx-auto mb-8">
+            <Box sx={{ maxWidth: 600, mx: 'auto', mb: 4 }}>
               <SearchBar
                 onSearch={handleSearch}
                 placeholder="어떤 상품을 찾고 계신가요?"
                 className="w-full"
                 showSuggestions={true}
               />
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                to="/products" 
-                className="inline-block bg-white text-blue-600 font-semibold px-8 py-4 rounded-lg hover:bg-gray-100 transition-all duration-200 transform hover:scale-105 shadow-lg"
+            </Box>
+
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              spacing={2}
+              justifyContent="center"
+              sx={{ mb: 8 }}
+            >
+              <Button
+                component={Link}
+                to="/products"
+                variant="contained"
+                size="large"
+                sx={{
+                  bgcolor: 'white',
+                  color: theme.palette.primary.main,
+                  px: 4,
+                  py: 1.5,
+                  '&:hover': {
+                    bgcolor: alpha(theme.palette.common.white, 0.9),
+                    transform: 'scale(1.05)'
+                  },
+                  transition: 'all 0.2s'
+                }}
               >
                 상품 둘러보기
-              </Link>
-              <Link 
-                to="/register" 
-                className="inline-block border-2 border-white text-white font-semibold px-8 py-4 rounded-lg hover:bg-white hover:text-blue-600 transition-all duration-200 transform hover:scale-105"
+              </Button>
+              <Button
+                component={Link}
+                to="/register"
+                variant="outlined"
+                size="large"
+                sx={{
+                  borderColor: 'white',
+                  color: 'white',
+                  px: 4,
+                  py: 1.5,
+                  '&:hover': {
+                    bgcolor: 'white',
+                    color: theme.palette.primary.main,
+                    transform: 'scale(1.05)'
+                  },
+                  transition: 'all 0.2s'
+                }}
               >
                 회원가입하고 혜택받기
-              </Link>
-            </div>
-            
+              </Button>
+            </Stack>
+
             {/* 통계 정보 */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 pt-16 border-t border-blue-400 border-opacity-30">
-              <div className="text-center">
-                <div className="text-3xl font-bold mb-2">10,000+</div>
-                <div className="text-blue-200">등록된 상품</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold mb-2">50,000+</div>
-                <div className="text-blue-200">만족한 고객</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold mb-2">24시간</div>
-                <div className="text-blue-200">빠른 배송</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            <Box sx={{ pt: 8, borderTop: `1px solid ${alpha(theme.palette.common.white, 0.3)}` }}>
+              <Grid2 container spacing={4} justifyContent="center">
+                <Grid2 xs={12} md={4} sx={{ textAlign: 'center' }}>
+                  <Typography variant="h3" fontWeight="bold" sx={{ mb: 1 }}>
+                    10,000+
+                  </Typography>
+                  <Typography sx={{ color: alpha(theme.palette.common.white, 0.8) }}>
+                    등록된 상품
+                  </Typography>
+                </Grid2>
+                <Grid2 xs={12} md={4} sx={{ textAlign: 'center' }}>
+                  <Typography variant="h3" fontWeight="bold" sx={{ mb: 1 }}>
+                    50,000+
+                  </Typography>
+                  <Typography sx={{ color: alpha(theme.palette.common.white, 0.8) }}>
+                    만족한 고객
+                  </Typography>
+                </Grid2>
+                <Grid2 xs={12} md={4} sx={{ textAlign: 'center' }}>
+                  <Typography variant="h3" fontWeight="bold" sx={{ mb: 1 }}>
+                    24시간
+                  </Typography>
+                  <Typography sx={{ color: alpha(theme.palette.common.white, 0.8) }}>
+                    빠른 배송
+                  </Typography>
+                </Grid2>
+              </Grid2>
+            </Box>
+          </Box>
+        </Container>
+      </Box>
 
       {/* 특별 카테고리 배너 */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">🎉 특별 기획전</h2>
-            <p className="text-gray-600 text-lg">
+      <Box sx={{ py: 8, bgcolor: theme.palette.grey[50] }}>
+        <Container maxWidth="lg">
+          <Box textAlign="center" sx={{ mb: 6 }}>
+            <Typography variant="h3" fontWeight="bold" sx={{ mb: 2 }}>
+              🎉 특별 기획전
+            </Typography>
+            <Typography variant="h6" color="text.secondary">
               한정 기간 특가 혜택을 놓치지 마세요
-            </p>
-          </div>
+            </Typography>
+          </Box>
           <SpecialCategoryBanner />
-        </div>
-      </section>
+        </Container>
+      </Box>
 
       {/* 인기 카테고리 */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <Box sx={{ py: 8, bgcolor: 'white' }}>
+        <Container maxWidth="lg">
           <CategoryPreview 
             layout="grid" 
             showProductCount={true}
             maxCategories={6}
           />
-        </div>
-      </section>
+        </Container>
+      </Box>
 
       {/* 추천 상품들 */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <Box sx={{ py: 8, bgcolor: theme.palette.grey[50] }}>
+        <Container maxWidth="lg">
           <FeaturedProducts />
-        </div>
-      </section>
+        </Container>
+      </Box>
 
       {/* 특징 섹션 */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
+      <Box sx={{ py: 8, bgcolor: 'white' }}>
+        <Container maxWidth="lg">
+          <Typography variant="h3" fontWeight="bold" textAlign="center" sx={{ mb: 6 }}>
             왜 우리를 선택해야 할까요?
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center group">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-full text-xl mb-4 group-hover:scale-110 transition-transform duration-200">
-                🚚
-              </div>
-              <h3 className="text-xl font-semibold mb-4 text-gray-900">빠른 배송</h3>
-              <p className="text-gray-600 leading-relaxed">
-                주문 후 24시간 내 배송 시작으로<br />빠르게 받아보세요
-              </p>
-              <div className="mt-4 text-sm text-blue-600 font-medium">
-                평균 배송시간: 1-2일
-              </div>
-            </div>
-            
-            <div className="text-center group">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 text-green-600 rounded-full text-xl mb-4 group-hover:scale-110 transition-transform duration-200">
-                💎
-              </div>
-              <h3 className="text-xl font-semibold mb-4 text-gray-900">품질 보장</h3>
-              <p className="text-gray-600 leading-relaxed">
-                엄선된 상품만을 취급하여<br />최고의 품질을 보장합니다
-              </p>
-              <div className="mt-4 text-sm text-green-600 font-medium">
-                품질 불만족시 100% 환불
-              </div>
-            </div>
-            
-            <div className="text-center group">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-100 text-purple-600 rounded-full text-xl mb-4 group-hover:scale-110 transition-transform duration-200">
-                🛡️
-              </div>
-              <h3 className="text-xl font-semibold mb-4 text-gray-900">안전한 결제</h3>
-              <p className="text-gray-600 leading-relaxed">
-                다양한 결제 수단과 보안 시스템으로<br />안전하게 쇼핑하세요
-              </p>
-              <div className="mt-4 text-sm text-purple-600 font-medium">
-                SSL 암호화 보안
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+          </Typography>
+          <Grid2 container spacing={4}>
+            {[
+              {
+                icon: <ShippingIcon sx={{ fontSize: 40 }} />,
+                title: '빠른 배송',
+                description: '주문 후 24시간 내 배송 시작으로\n빠르게 받아보세요',
+                detail: '평균 배송시간: 1-2일',
+                color: theme.palette.info.main
+              },
+              {
+                icon: <DiamondIcon sx={{ fontSize: 40 }} />,
+                title: '품질 보장',
+                description: '엄선된 상품만을 취급하여\n최고의 품질을 보장합니다',
+                detail: '품질 불만족시 100% 환불',
+                color: theme.palette.success.main
+              },
+              {
+                icon: <SecurityIcon sx={{ fontSize: 40 }} />,
+                title: '안전한 결제',
+                description: '다양한 결제 수단과 보안 시스템으로\n안전하게 쇼핑하세요',
+                detail: 'SSL 암호화 보안',
+                color: theme.palette.secondary.main
+              }
+            ].map((feature, index) => (
+              <Grid2 xs={12} md={4} key={index}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    textAlign: 'center',
+                    p: 4,
+                    height: '100%',
+                    transition: 'transform 0.2s',
+                    '&:hover': {
+                      transform: 'translateY(-4px)',
+                      boxShadow: theme.shadows[4]
+                    }
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 80,
+                      height: 80,
+                      borderRadius: '50%',
+                      bgcolor: alpha(feature.color, 0.1),
+                      color: feature.color,
+                      mb: 3
+                    }}
+                  >
+                    {feature.icon}
+                  </Box>
+                  <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
+                    {feature.title}
+                  </Typography>
+                  <Typography color="text.secondary" sx={{ mb: 2, whiteSpace: 'pre-line' }}>
+                    {feature.description}
+                  </Typography>
+                  <Chip
+                    label={feature.detail}
+                    sx={{
+                      bgcolor: alpha(feature.color, 0.1),
+                      color: feature.color,
+                      fontWeight: 'medium'
+                    }}
+                  />
+                </Paper>
+              </Grid2>
+            ))}
+          </Grid2>
+        </Container>
+      </Box>
 
       {/* 고객 후기 섹션 */}
-      <section className="py-16 bg-gray-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">💬 고객 후기</h2>
-            <p className="text-gray-300 text-lg">
+      <Box sx={{ py: 8, bgcolor: theme.palette.grey[900], color: 'white' }}>
+        <Container maxWidth="lg">
+          <Box textAlign="center" sx={{ mb: 6 }}>
+            <Typography variant="h3" fontWeight="bold" sx={{ mb: 2 }}>
+              💬 고객 후기
+            </Typography>
+            <Typography variant="h6" sx={{ color: theme.palette.grey[300] }}>
               실제 고객들의 생생한 후기를 확인해보세요
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            </Typography>
+          </Box>
+
+          <Grid2 container spacing={4}>
             {[
               {
                 name: "김민수",
@@ -185,86 +341,174 @@ const HomePage: React.FC = () => {
                 product: "맥북 에어 M3"
               }
             ].map((review, index) => (
-              <div key={index} className="bg-gray-800 rounded-lg p-6 hover:bg-gray-700 transition-colors">
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-                    {review.name[0]}
-                  </div>
-                  <div className="ml-4">
-                    <div className="font-semibold">{review.name}</div>
-                    <div className="flex text-yellow-400 text-sm">
-                      {Array.from({ length: review.rating }).map((_, i) => (
-                        <span key={i}>★</span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <p className="text-gray-300 mb-4 leading-relaxed">
-                  "{review.comment}"
-                </p>
-                <div className="text-sm text-blue-400">
-                  구매 상품: {review.product}
-                </div>
-              </div>
+              <Grid2 xs={12} md={4} key={index}>
+                <Card
+                  sx={{
+                    bgcolor: theme.palette.grey[800],
+                    color: 'white',
+                    height: '100%',
+                    transition: 'background-color 0.2s',
+                    '&:hover': {
+                      bgcolor: theme.palette.grey[700]
+                    }
+                  }}
+                >
+                  <CardContent>
+                    <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
+                      <Avatar sx={{ bgcolor: theme.palette.primary.main }}>
+                        {review.name[0]}
+                      </Avatar>
+                      <Box>
+                        <Typography fontWeight="bold">{review.name}</Typography>
+                        <Rating value={review.rating} readOnly size="small" />
+                      </Box>
+                    </Stack>
+                    <Typography sx={{ color: theme.palette.grey[300], mb: 2, fontStyle: 'italic' }}>
+                      "{review.comment}"
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: theme.palette.info.light }}>
+                      구매 상품: {review.product}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid2>
             ))}
-          </div>
-        </div>
-      </section>
+          </Grid2>
+        </Container>
+      </Box>
 
       {/* CTA 섹션 */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">🎁 지금 바로 시작하세요!</h2>
-          <p className="text-xl mb-8 text-blue-100">
-            회원가입하고 <span className="text-yellow-300 font-bold">10% 할인 쿠폰</span>과 <span className="text-yellow-300 font-bold">무료배송</span> 혜택을 받아보세요
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Link 
-              to="/register" 
-              className="inline-block bg-white text-blue-600 font-semibold px-8 py-4 rounded-lg hover:bg-gray-100 transition-all duration-200 transform hover:scale-105 shadow-lg"
+      <Box
+        sx={{
+          py: 8,
+          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+          color: 'white',
+          textAlign: 'center'
+        }}
+      >
+        <Container maxWidth="lg">
+          <Typography variant="h3" fontWeight="bold" sx={{ mb: 2 }}>
+            🎁 지금 바로 시작하세요!
+          </Typography>
+          <Typography variant="h5" sx={{ mb: 4, color: alpha(theme.palette.common.white, 0.9) }}>
+            회원가입하고{' '}
+            <Box component="span" sx={{ color: theme.palette.warning.main, fontWeight: 'bold' }}>
+              10% 할인 쿠폰
+            </Box>
+            과{' '}
+            <Box component="span" sx={{ color: theme.palette.warning.main, fontWeight: 'bold' }}>
+              무료배송
+            </Box>
+            {' '}혜택을 받아보세요
+          </Typography>
+
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={2}
+            justifyContent="center"
+            sx={{ mb: 4 }}
+          >
+            <Button
+              component={Link}
+              to="/register"
+              variant="contained"
+              size="large"
+              sx={{
+                bgcolor: 'white',
+                color: theme.palette.primary.main,
+                px: 4,
+                py: 1.5,
+                '&:hover': {
+                  bgcolor: alpha(theme.palette.common.white, 0.9),
+                  transform: 'scale(1.05)'
+                }
+              }}
             >
               무료 회원가입
-            </Link>
-            <Link 
-              to="/products" 
-              className="inline-block border-2 border-white text-white font-semibold px-8 py-4 rounded-lg hover:bg-white hover:text-blue-600 transition-all duration-200 transform hover:scale-105"
+            </Button>
+            <Button
+              component={Link}
+              to="/products"
+              variant="outlined"
+              size="large"
+              sx={{
+                borderColor: 'white',
+                color: 'white',
+                px: 4,
+                py: 1.5,
+                '&:hover': {
+                  bgcolor: 'white',
+                  color: theme.palette.primary.main,
+                  transform: 'scale(1.05)'
+                }
+              }}
             >
               상품 둘러보기
-            </Link>
-          </div>
-          
-          <div className="text-sm text-blue-200">
-            이미 회원이신가요? <Link to="/login" className="text-yellow-300 hover:underline font-medium">로그인하기</Link>
-          </div>
-        </div>
-      </section>
+            </Button>
+          </Stack>
+
+          <Typography variant="body2" sx={{ color: alpha(theme.palette.common.white, 0.8) }}>
+            이미 회원이신가요?{' '}
+            <Button
+              component={Link}
+              to="/login"
+              variant="text"
+              sx={{
+                color: theme.palette.warning.main,
+                textDecoration: 'underline',
+                p: 0,
+                minWidth: 'auto',
+                '&:hover': { textDecoration: 'underline' }
+              }}
+            >
+              로그인하기
+            </Button>
+          </Typography>
+        </Container>
+      </Box>
 
       {/* 뉴스레터 구독 섹션 */}
-      <section className="py-12 bg-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg p-8 text-center shadow-sm">
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">📧 최신 소식 받아보기</h3>
-            <p className="text-gray-600 mb-6">
+      <Box sx={{ py: 6, bgcolor: theme.palette.grey[100] }}>
+        <Container maxWidth="lg">
+          <Paper elevation={1} sx={{ p: 4, textAlign: 'center' }}>
+            <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>
+              📧 최신 소식 받아보기
+            </Typography>
+            <Typography color="text.secondary" sx={{ mb: 3 }}>
               신상품 출시, 특별 할인 소식을 가장 먼저 받아보세요
-            </p>
-            <div className="max-w-md mx-auto flex gap-2">
-              <input
-                type="email"
+            </Typography>
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              spacing={1}
+              sx={{ maxWidth: 400, mx: 'auto', mb: 2 }}
+            >
+              <TextField
+                fullWidth
                 placeholder="이메일 주소를 입력하세요"
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                variant="outlined"
+                size="small"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <EmailIcon color="action" />
+                    </InputAdornment>
+                  )
+                }}
               />
-              <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              <Button
+                variant="contained"
+                sx={{ px: 3, whiteSpace: 'nowrap' }}
+              >
                 구독
-              </button>
-            </div>
-            <p className="text-xs text-gray-500 mt-3">
+              </Button>
+            </Stack>
+            <Typography variant="caption" color="text.secondary">
               언제든지 구독을 취소할 수 있습니다. 개인정보는 안전하게 보호됩니다.
-            </p>
-          </div>
-        </div>
-      </section>
-    </div>
+            </Typography>
+          </Paper>
+        </Container>
+      </Box>
+    </Box>
   );
 };
 

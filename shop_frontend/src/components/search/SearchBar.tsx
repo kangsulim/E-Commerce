@@ -1,5 +1,32 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  Box,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Paper,
+  Typography,
+  Chip,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Divider,
+  Stack,
+  Button,
+  Popper,
+  ClickAwayListener,
+  useTheme,
+  alpha
+} from '@mui/material';
+import {
+  Search as SearchIcon,
+  Clear as ClearIcon,
+  TrendingUp as TrendingIcon,
+  History as HistoryIcon,
+  DeleteSweep as DeleteIcon
+} from '@mui/icons-material';
 
 interface SearchBarProps {
   placeholder?: string;
@@ -14,10 +41,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
   onSearch,
   showSuggestions = true
 }) => {
+  const theme = useTheme();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get('search') || '');
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [showDropdown, setShowDropdown] = useState(false);
 
   // 인기 검색어 (실제로는 API에서 가져와야 함)
@@ -77,27 +105,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setQuery(value);
-    
-    if (showSuggestions && value.length > 0) {
-      setShowDropdown(true);
-    } else {
-      setShowDropdown(false);
-    }
   };
 
-  const handleFocus = () => {
-    setIsExpanded(true);
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setAnchorEl(e.currentTarget);
     if (showSuggestions) {
       setShowDropdown(true);
     }
-  };
-
-  const handleBlur = () => {
-    // 약간의 지연을 두어 클릭 이벤트가 처리되도록 함
-    setTimeout(() => {
-      setIsExpanded(false);
-      setShowDropdown(false);
-    }, 200);
   };
 
   const handleSuggestionClick = (suggestion: string) => {
@@ -114,135 +128,218 @@ const SearchBar: React.FC<SearchBarProps> = ({
     }
   };
 
+  const handleClickAway = () => {
+    setShowDropdown(false);
+    setAnchorEl(null);
+  };
+
   const recentSearches = getRecentSearches();
 
   return (
-    <div className={`relative ${className}`}>
-      <form onSubmit={handleSubmit} className="relative">
-        <div className={`relative transition-all duration-200 ${
-          isExpanded ? 'shadow-lg' : 'shadow-sm'
-        }`}>
-          <input
-            type="text"
+    <ClickAwayListener onClickAway={handleClickAway}>
+      <Box className={className} sx={{ position: 'relative' }}>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{ position: 'relative' }}
+        >
+          <TextField
+            fullWidth
             value={query}
             onChange={handleInputChange}
             onFocus={handleFocus}
-            onBlur={handleBlur}
             placeholder={placeholder}
-            className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            variant="outlined"
+            size="medium"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon color="action" />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Stack direction="row" spacing={0.5}>
+                    {query && (
+                      <IconButton
+                        size="small"
+                        onClick={() => setQuery('')}
+                        edge="end"
+                      >
+                        <ClearIcon fontSize="small" />
+                      </IconButton>
+                    )}
+                    <IconButton
+                      type="submit"
+                      size="small"
+                      color="primary"
+                      edge="end"
+                    >
+                      <SearchIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
+                </InputAdornment>
+              ),
+              sx: {
+                borderRadius: 2,
+                bgcolor: 'background.paper',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  boxShadow: theme.shadows[2]
+                },
+                '&.Mui-focused': {
+                  boxShadow: theme.shadows[4]
+                }
+              }
+            }}
           />
-          
-          {/* 검색 아이콘 */}
-          <div className="absolute left-4 top-1/2 -translate-y-1/2">
-            <svg
-              className="w-3 h-3 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-          </div>
-
-          {/* 입력 내용 지우기 버튼 */}
-          {query && (
-            <button
-              type="button"
-              onClick={() => setQuery('')}
-              className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
-
-          {/* 검색 버튼 */}
-          <button
-            type="submit"
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-700 transition-colors"
-          >
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5-5 5M6 12h12" />
-            </svg>
-          </button>
-        </div>
+        </Box>
 
         {/* 검색 제안 드롭다운 */}
-        {showDropdown && showSuggestions && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
-            {/* 최근 검색어 */}
-            {recentSearches.length > 0 && (
-              <div className="p-4 border-b border-gray-100">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-sm font-medium text-gray-700">최근 검색어</h4>
-                  <button
-                    type="button"
-                    onClick={clearRecentSearches}
-                    className="text-xs text-gray-400 hover:text-gray-600"
+        {showDropdown && showSuggestions && anchorEl && (
+          <Popper
+            open={showDropdown}
+            anchorEl={anchorEl}
+            placement="bottom-start"
+            sx={{ 
+              width: anchorEl.offsetWidth,
+              zIndex: theme.zIndex.modal,
+              mt: 1
+            }}
+          >
+            <Paper
+              elevation={8}
+              sx={{
+                maxHeight: 400,
+                overflow: 'auto',
+                borderRadius: 2
+              }}
+            >
+              {/* 최근 검색어 */}
+              {recentSearches.length > 0 && (
+                <Box sx={{ p: 2 }}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    sx={{ mb: 2 }}
                   >
-                    전체 삭제
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {recentSearches.slice(0, 5).map((item: string, index: number) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => handleSuggestionClick(item)}
-                      className="text-sm text-gray-600 hover:text-blue-600 bg-gray-100 hover:bg-blue-50 px-3 py-1 rounded-full transition-colors"
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <HistoryIcon fontSize="small" color="action" />
+                      <Typography variant="subtitle2" color="text.secondary">
+                        최근 검색어
+                      </Typography>
+                    </Stack>
+                    <Button
+                      size="small"
+                      startIcon={<DeleteIcon fontSize="small" />}
+                      onClick={clearRecentSearches}
+                      sx={{ minWidth: 'auto', px: 1 }}
                     >
-                      {item}
-                    </button>
+                      전체 삭제
+                    </Button>
+                  </Stack>
+                  <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
+                    {recentSearches.slice(0, 5).map((item: string, index: number) => (
+                      <Chip
+                        key={index}
+                        label={item}
+                        size="small"
+                        variant="outlined"
+                        onClick={() => handleSuggestionClick(item)}
+                        sx={{
+                          '&:hover': {
+                            bgcolor: alpha(theme.palette.primary.main, 0.1),
+                            borderColor: 'primary.main'
+                          }
+                        }}
+                      />
+                    ))}
+                  </Stack>
+                </Box>
+              )}
+
+              {recentSearches.length > 0 && <Divider />}
+
+              {/* 인기 검색어 */}
+              <Box sx={{ p: 2 }}>
+                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+                  <TrendingIcon fontSize="small" color="action" />
+                  <Typography variant="subtitle2" color="text.secondary">
+                    인기 검색어
+                  </Typography>
+                </Stack>
+                <List dense sx={{ py: 0 }}>
+                  {popularSearches.map((item, index) => (
+                    <ListItem key={index} disablePadding>
+                      <ListItemButton
+                        onClick={() => handleSuggestionClick(item)}
+                        sx={{
+                          borderRadius: 1,
+                          '&:hover': {
+                            bgcolor: alpha(theme.palette.primary.main, 0.1)
+                          }
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            minWidth: 24,
+                            mr: 2,
+                            display: 'flex',
+                            justifyContent: 'center'
+                          }}
+                        >
+                          <Typography
+                            variant="caption"
+                            color="primary.main"
+                            fontWeight="bold"
+                          >
+                            {index + 1}
+                          </Typography>
+                        </Box>
+                        <ListItemText
+                          primary={item}
+                          primaryTypographyProps={{
+                            variant: 'body2'
+                          }}
+                        />
+                      </ListItemButton>
+                    </ListItem>
                   ))}
-                </div>
-              </div>
-            )}
+                </List>
+              </Box>
 
-            {/* 인기 검색어 */}
-            <div className="p-4">
-              <h4 className="text-sm font-medium text-gray-700 mb-3">인기 검색어</h4>
-              <div className="space-y-2">
-                {popularSearches.map((item, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => handleSuggestionClick(item)}
-                    className="flex items-center w-full text-left px-2 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors"
-                  >
-                    <span className="text-blue-600 font-medium mr-3 w-4">
-                      {index + 1}
-                    </span>
-                    <span>{item}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 현재 입력값과 일치하는 제안 */}
-            {query.trim() && (
-              <div className="p-4 border-t border-gray-100">
-                <button
-                  type="button"
-                  onClick={() => handleSuggestionClick(query)}
-                  className="flex items-center w-full text-left px-2 py-2 text-sm text-gray-900 hover:bg-gray-50 rounded transition-colors"
-                >
-                  <svg className="w-3 h-3 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                  <span>'{query}' 검색</span>
-                </button>
-              </div>
-            )}
-          </div>
+              {/* 현재 입력값과 일치하는 제안 */}
+              {query.trim() && (
+                <>
+                  <Divider />
+                  <Box sx={{ p: 1 }}>
+                    <ListItemButton
+                      onClick={() => handleSuggestionClick(query)}
+                      sx={{
+                        borderRadius: 1,
+                        '&:hover': {
+                          bgcolor: alpha(theme.palette.primary.main, 0.1)
+                        }
+                      }}
+                    >
+                      <SearchIcon 
+                        fontSize="small" 
+                        color="action" 
+                        sx={{ mr: 2 }} 
+                      />
+                      <Typography variant="body2">
+                        '{query}' 검색
+                      </Typography>
+                    </ListItemButton>
+                  </Box>
+                </>
+              )}
+            </Paper>
+          </Popper>
         )}
-      </form>
-    </div>
+      </Box>
+    </ClickAwayListener>
   );
 };
 

@@ -1,91 +1,172 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import {
+  Box,
+  Container,
+  Grid2,
+  Typography,
+  Link as MuiLink,
+  Divider,
+  Stack,
+  useTheme
+} from '@mui/material';
+import {
+  Phone as PhoneIcon,
+  Email as EmailIcon,
+  Schedule as ScheduleIcon
+} from '@mui/icons-material';
 
 const Footer: React.FC = () => {
+  const theme = useTheme();
+
   return (
-    <footer className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto container-padding py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <Box
+      component="footer"
+      sx={{
+        bgcolor: theme.palette.grey[900],
+        color: 'white',
+        py: 6
+      }}
+    >
+      <Container maxWidth="lg">
+        <Grid2 container spacing={4}>
           {/* 회사 정보 */}
-          <div className="col-span-1 md:col-span-2">
-            <h3 className="text-xl font-bold mb-4">
+          <Grid2 xs={12} md={6}>
+            <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
               {import.meta.env.VITE_APP_NAME || '온라인 쇼핑몰'}
-            </h3>
-            <p className="text-gray-300 mb-4">
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{ color: theme.palette.grey[300], mb: 3, lineHeight: 1.6 }}
+            >
               최고의 품질과 서비스로 고객 만족을 위해 노력하는 온라인 쇼핑몰입니다.
-            </p>
-            <div className="text-sm text-gray-400">
-              <p>📞 고객센터: 1588-1234</p>
-              <p>📧 이메일: support@shop.com</p>
-              <p>🕐 운영시간: 평일 09:00-18:00</p>
-            </div>
-          </div>
+            </Typography>
+            <Stack spacing={1} sx={{ color: theme.palette.grey[400] }}>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <PhoneIcon fontSize="small" />
+                <Typography variant="body2">
+                  고객센터: 1588-1234
+                </Typography>
+              </Stack>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <EmailIcon fontSize="small" />
+                <Typography variant="body2">
+                  이메일: support@shop.com
+                </Typography>
+              </Stack>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <ScheduleIcon fontSize="small" />
+                <Typography variant="body2">
+                  운영시간: 평일 09:00-18:00
+                </Typography>
+              </Stack>
+            </Stack>
+          </Grid2>
 
           {/* 바로가기 */}
-          <div>
-            <h4 className="font-semibold mb-4">바로가기</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link to="/" className="text-gray-300 hover:text-white transition-colors">
-                  홈
-                </Link>
-              </li>
-              <li>
-                <Link to="/products" className="text-gray-300 hover:text-white transition-colors">
-                  전체상품
-                </Link>
-              </li>
-              <li>
-                <Link to="/cart" className="text-gray-300 hover:text-white transition-colors">
-                  장바구니
-                </Link>
-              </li>
-              <li>
-                <Link to="/orders" className="text-gray-300 hover:text-white transition-colors">
-                  주문내역
-                </Link>
-              </li>
-            </ul>
-          </div>
+          <Grid2 xs={6} md={3}>
+            <Typography variant="h6" fontWeight="medium" sx={{ mb: 2 }}>
+              바로가기
+            </Typography>
+            <Stack spacing={1}>
+              {[
+                { label: '홈', path: '/' },
+                { label: '전체상품', path: '/products' },
+                { label: '장바구니', path: '/cart' },
+                { label: '주문내역', path: '/orders' }
+              ].map((item) => (
+                <MuiLink
+                  key={item.path}
+                  component={Link}
+                  to={item.path}
+                  variant="body2"
+                  sx={{
+                    color: theme.palette.grey[300],
+                    textDecoration: 'none',
+                    '&:hover': {
+                      color: 'white',
+                      textDecoration: 'underline'
+                    }
+                  }}
+                >
+                  {item.label}
+                </MuiLink>
+              ))}
+            </Stack>
+          </Grid2>
 
           {/* 고객지원 */}
-          <div>
-            <h4 className="font-semibold mb-4">고객지원</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                  공지사항
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                  자주묻는질문
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                  배송안내
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                  반품/교환
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
+          <Grid2 xs={6} md={3}>
+            <Typography variant="h6" fontWeight="medium" sx={{ mb: 2 }}>
+              고객지원
+            </Typography>
+            <Stack spacing={1}>
+              {[
+                '공지사항',
+                '자주묻는질문',
+                '배송안내',
+                '반품/교환'
+              ].map((item) => (
+                <MuiLink
+                  key={item}
+                  href="#"
+                  variant="body2"
+                  sx={{
+                    color: theme.palette.grey[300],
+                    textDecoration: 'none',
+                    '&:hover': {
+                      color: 'white',
+                      textDecoration: 'underline'
+                    }
+                  }}
+                >
+                  {item}
+                </MuiLink>
+              ))}
+            </Stack>
+          </Grid2>
+        </Grid2>
 
-        <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
-          <p>&copy; 2024 {import.meta.env.VITE_APP_NAME || '온라인 쇼핑몰'}. All rights reserved.</p>
-          <div className="mt-2 space-x-4">
-            <a href="#" className="hover:text-white transition-colors">개인정보처리방침</a>
-            <a href="#" className="hover:text-white transition-colors">이용약관</a>
-            <a href="#" className="hover:text-white transition-colors">사업자정보</a>
-          </div>
-        </div>
-      </div>
-    </footer>
+        <Divider sx={{ my: 4, borderColor: theme.palette.grey[700] }} />
+
+        <Box textAlign="center">
+          <Typography
+            variant="body2"
+            sx={{ color: theme.palette.grey[400], mb: 1 }}
+          >
+            &copy; 2024 {import.meta.env.VITE_APP_NAME || '온라인 쇼핑몰'}. All rights reserved.
+          </Typography>
+          <Stack
+            direction="row"
+            spacing={2}
+            justifyContent="center"
+            sx={{ flexWrap: 'wrap' }}
+          >
+            {[
+              '개인정보처리방침',
+              '이용약관',
+              '사업자정보'
+            ].map((item) => (
+              <MuiLink
+                key={item}
+                href="#"
+                variant="body2"
+                sx={{
+                  color: theme.palette.grey[400],
+                  textDecoration: 'none',
+                  '&:hover': {
+                    color: 'white',
+                    textDecoration: 'underline'
+                  }
+                }}
+              >
+                {item}
+              </MuiLink>
+            ))}
+          </Stack>
+        </Box>
+      </Container>
+    </Box>
   );
 };
 

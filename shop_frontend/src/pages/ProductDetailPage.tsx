@@ -1,17 +1,81 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import {
+  Box,
+  Container,
+  Grid2,
+  Typography,
+  Button,
+  Paper,
+  Tab,
+  Tabs,
+  Chip,
+  Rating,
+  IconButton,
+  Stack,
+  Divider,
+  Alert,
+  Skeleton,
+  useTheme,
+  alpha,
+  ButtonGroup,
+  TableContainer,
+  Table,
+  TableBody,
+  TableRow,
+  TableCell
+} from '@mui/material';
+import {
+  Add as AddIcon,
+  Remove as RemoveIcon,
+  ShoppingCart as CartIcon,
+  ShoppingBag as BuyIcon,
+  Favorite as FavoriteIcon,
+  FavoriteBorder as FavoriteOutlineIcon,
+  Inventory as OutOfStockIcon,
+  CheckCircle as InStockIcon,
+  SentimentDissatisfied as SadIcon
+} from '@mui/icons-material';
 import { useProduct, useProducts } from '../hooks/useProducts';
 import Breadcrumb from '../components/common/Breadcrumb';
 import ProductImageGallery from '../components/product/ProductImageGallery';
 import ProductCard from '../components/product/ProductCard';
 import { ProductGridSkeleton } from '../components/common/ProductSkeleton';
 
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`product-tabpanel-${index}`}
+      aria-labelledby={`product-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          {children}
+        </Box>
+      )}
+    </div>
+  );
+}
+
 const ProductDetailPage: React.FC = () => {
+  const theme = useTheme();
   const { id } = useParams<{ id: string }>();
   const productId = id ? parseInt(id) : 0;
   
   const [quantity, setQuantity] = useState(1);
-  const [selectedTab, setSelectedTab] = useState<'description' | 'specifications' | 'reviews'>('description');
+  const [selectedTab, setSelectedTab] = useState(0);
+  const [isFavorite, setIsFavorite] = useState(false);
   
   // 상품 데이터 조회
   const { data: product, isLoading, error } = useProduct(productId);
@@ -24,33 +88,6 @@ const ProductDetailPage: React.FC = () => {
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ko-KR').format(price);
-  };
-
-  const renderStars = (rating: number) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(
-        <span key={i} className="text-yellow-400">★</span>
-      );
-    }
-
-    if (hasHalfStar) {
-      stars.push(
-        <span key="half" className="text-yellow-400">☆</span>
-      );
-    }
-
-    const emptyStars = 5 - stars.length;
-    for (let i = 0; i < emptyStars; i++) {
-      stars.push(
-        <span key={`empty-${i}`} className="text-gray-300">☆</span>
-      );
-    }
-
-    return stars;
   };
 
   const handleQuantityChange = (newQuantity: number) => {
@@ -73,62 +110,88 @@ const ProductDetailPage: React.FC = () => {
     alert(`${product.name} ${quantity}개 즉시 구매로 이동합니다.`);
   };
 
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setSelectedTab(newValue);
+  };
+
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-6xl text-gray-400 mb-4">😞</div>
-          <h2 className="text-2xl font-semibold text-gray-700 mb-2">상품을 찾을 수 없습니다</h2>
-          <p className="text-gray-500 mb-6">요청하신 상품이 존재하지 않거나 삭제되었습니다.</p>
-          <Link 
-            to="/products" 
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            상품 목록으로 돌아가기
-          </Link>
-        </div>
-      </div>
+      <Box
+        sx={{
+          minHeight: '100vh',
+          bgcolor: 'grey.50',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        <Container maxWidth="sm">
+          <Paper elevation={3} sx={{ p: 6, textAlign: 'center' }}>
+            <SadIcon sx={{ fontSize: 80, color: 'text.disabled', mb: 2 }} />
+            <Typography variant="h4" fontWeight="medium" sx={{ mb: 1 }}>
+              상품을 찾을 수 없습니다
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+              요청하신 상품이 존재하지 않거나 삭제되었습니다.
+            </Typography>
+            <Button
+              component={Link}
+              to="/products"
+              variant="contained"
+              size="large"
+            >
+              상품 목록으로 돌아가기
+            </Button>
+          </Paper>
+        </Container>
+      </Box>
     );
   }
 
   if (isLoading || !product) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <Box sx={{ minHeight: '100vh', bgcolor: 'grey.50' }}>
+        <Container maxWidth="lg" sx={{ py: 4 }}>
           {/* 로딩 스켈레톤 */}
-          <div className="animate-pulse">
+          <Stack spacing={3}>
             {/* 브레드크럼 스켈레톤 */}
-            <div className="h-4 bg-gray-200 rounded w-64 mb-8"></div>
+            <Skeleton variant="text" width={300} height={24} />
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-              {/* 이미지 스켈레톤 */}
-              <div className="space-y-4">
-                <div className="aspect-square bg-gray-200 rounded-lg"></div>
-                <div className="grid grid-cols-4 gap-2">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="aspect-square bg-gray-200 rounded"></div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* 상품 정보 스켈레톤 */}
-              <div className="space-y-6">
-                <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-6 bg-gray-200 rounded w-32"></div>
-                <div className="h-10 bg-gray-200 rounded w-48"></div>
-                <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded"></div>
-                  <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="h-12 bg-gray-200 rounded flex-1"></div>
-                  <div className="h-12 bg-gray-200 rounded flex-1"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+            <Paper elevation={1} sx={{ p: 4 }}>
+              <Grid2 container spacing={4}>
+                {/* 이미지 스켈레톤 */}
+                <Grid2 xs={12} lg={6}>
+                  <Stack spacing={2}>
+                    <Skeleton variant="rectangular" sx={{ aspectRatio: '1', borderRadius: 2 }} />
+                    <Stack direction="row" spacing={1}>
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <Skeleton key={i} variant="rectangular" sx={{ width: 80, height: 80, borderRadius: 1 }} />
+                      ))}
+                    </Stack>
+                  </Stack>
+                </Grid2>
+                
+                {/* 상품 정보 스켈레톤 */}
+                <Grid2 xs={12} lg={6}>
+                  <Stack spacing={3}>
+                    <Skeleton variant="text" width="75%" height={40} />
+                    <Skeleton variant="text" width={150} height={24} />
+                    <Skeleton variant="text" width={200} height={48} />
+                    <Stack spacing={1}>
+                      <Skeleton variant="text" width="100%" height={20} />
+                      <Skeleton variant="text" width="80%" height={20} />
+                    </Stack>
+                    <Stack direction="row" spacing={2}>
+                      <Skeleton variant="rectangular" height={48} sx={{ flex: 1, borderRadius: 1 }} />
+                      <Skeleton variant="rectangular" height={48} sx={{ flex: 1, borderRadius: 1 }} />
+                    </Stack>
+                  </Stack>
+                </Grid2>
+              </Grid2>
+            </Paper>
+          </Stack>
+        </Container>
+      </Box>
     );
   }
 
@@ -143,264 +206,308 @@ const ProductDetailPage: React.FC = () => {
   const discountPercentage = product.discount || 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <Box sx={{ minHeight: '100vh', bgcolor: 'grey.50' }}>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* 브레드크럼 */}
-        <Breadcrumb items={breadcrumbItems} className="mb-8" />
+        <Breadcrumb items={breadcrumbItems} className="mb-4" />
 
         {/* 상품 상세 정보 */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-8">
+        <Paper elevation={1} sx={{ overflow: 'hidden', mb: 6 }}>
+          <Grid2 container>
             {/* 상품 이미지 */}
-            <ProductImageGallery 
-              images={product.images} 
-              productName={product.name}
-            />
+            <Grid2 xs={12} lg={6} sx={{ p: 4 }}>
+              <ProductImageGallery 
+                images={product.images} 
+                productName={product.name}
+              />
+            </Grid2>
 
             {/* 상품 정보 */}
-            <div className="space-y-6">
-              {/* 카테고리 */}
-              <div className="text-sm text-blue-600 font-medium">
-                {product.category}
-              </div>
+            <Grid2 xs={12} lg={6} sx={{ p: 4 }}>
+              <Stack spacing={3}>
+                {/* 카테고리 */}
+                <Chip
+                  label={product.category}
+                  size="small"
+                  variant="outlined"
+                  color="primary"
+                  sx={{ alignSelf: 'flex-start' }}
+                />
 
-              {/* 상품명 */}
-              <h1 className="text-3xl font-bold text-gray-900">
-                {product.name}
-              </h1>
+                {/* 상품명 */}
+                <Typography variant="h3" fontWeight="bold">
+                  {product.name}
+                </Typography>
 
-              {/* 평점 및 리뷰 */}
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1">
-                  {renderStars(product.rating)}
-                  <span className="text-sm text-gray-600 ml-2">
+                {/* 평점 및 리뷰 */}
+                <Stack direction="row" alignItems="center" spacing={2}>
+                  <Rating
+                    value={product.rating}
+                    readOnly
+                    precision={0.1}
+                    size="medium"
+                  />
+                  <Typography variant="body2" color="text.secondary">
                     {product.rating}
-                  </span>
-                </div>
-                <span className="text-sm text-gray-400">
-                  ({product.reviewCount}개 리뷰)
-                </span>
-              </div>
+                  </Typography>
+                  <Typography variant="body2" color="text.disabled">
+                    ({product.reviewCount}개 리뷰)
+                  </Typography>
+                </Stack>
 
-              {/* 가격 정보 */}
-              <div className="space-y-2">
-                {product.originalPrice && (
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg text-gray-400 line-through">
-                      {formatPrice(product.originalPrice)}원
-                    </span>
-                    <span className="bg-red-100 text-red-600 px-2 py-1 rounded text-sm font-medium">
-                      {discountPercentage}% 할인
-                    </span>
-                  </div>
-                )}
-                <div className="text-3xl font-bold text-gray-900">
-                  {formatPrice(product.price)}원
-                </div>
-                {discountPrice > 0 && (
-                  <div className="text-sm text-green-600 font-medium">
-                    {formatPrice(discountPrice)}원 절약
-                  </div>
-                )}
-              </div>
-
-              {/* 재고 상태 */}
-              <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${
-                  product.inStock ? 'bg-green-500' : 'bg-red-500'
-                }`}></div>
-                <span className={`text-sm font-medium ${
-                  product.inStock ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {product.inStock 
-                    ? `재고 ${product.stockQuantity}개 남음` 
-                    : '품절'
-                  }
-                </span>
-              </div>
-
-              {/* 태그들 */}
-              {product.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {product.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {/* 수량 선택 */}
-              {product.inStock && (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <label className="text-sm font-medium text-gray-700">
-                      수량:
-                    </label>
-                    <div className="flex items-center border border-gray-300 rounded-lg">
-                      <button
-                        onClick={() => handleQuantityChange(quantity - 1)}
-                        disabled={quantity <= 1}
-                        className="px-3 py-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                {/* 가격 정보 */}
+                <Stack spacing={1}>
+                  {product.originalPrice && (
+                    <Stack direction="row" alignItems="center" spacing={2}>
+                      <Typography
+                        variant="h6"
+                        color="text.disabled"
+                        sx={{ textDecoration: 'line-through' }}
                       >
-                        -
-                      </button>
-                      <span className="px-4 py-2 border-x border-gray-300 min-w-[60px] text-center">
-                        {quantity}
-                      </span>
-                      <button
-                        onClick={() => handleQuantityChange(quantity + 1)}
-                        disabled={quantity >= product.stockQuantity}
-                        className="px-3 py-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
+                        {formatPrice(product.originalPrice)}원
+                      </Typography>
+                      <Chip
+                        label={`${discountPercentage}% 할인`}
+                        size="small"
+                        color="error"
+                        sx={{ fontWeight: 'bold' }}
+                      />
+                    </Stack>
+                  )}
+                  <Typography variant="h3" fontWeight="bold" color="primary">
+                    {formatPrice(product.price)}원
+                  </Typography>
+                  {discountPrice > 0 && (
+                    <Typography variant="body2" color="success.main" fontWeight="medium">
+                      {formatPrice(discountPrice)}원 절약
+                    </Typography>
+                  )}
+                </Stack>
 
-                  {/* 총 가격 */}
-                  <div className="text-lg font-semibold text-gray-900">
-                    총 가격: {formatPrice(product.price * quantity)}원
-                  </div>
-                </div>
-              )}
-
-              {/* 구매 버튼들 */}
-              <div className="space-y-3">
-                {product.inStock ? (
-                  <>
-                    <button
-                      onClick={handleAddToCart}
-                      className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-                    >
-                      장바구니 담기
-                    </button>
-                    <button
-                      onClick={handleBuyNow}
-                      className="w-full bg-gray-900 text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition-colors"
-                    >
-                      바로 구매
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    disabled
-                    className="w-full bg-gray-300 text-gray-500 py-3 px-6 rounded-lg font-medium cursor-not-allowed"
+                {/* 재고 상태 */}
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  {product.inStock ? (
+                    <InStockIcon color="success" fontSize="small" />
+                  ) : (
+                    <OutOfStockIcon color="error" fontSize="small" />
+                  )}
+                  <Typography
+                    variant="body2"
+                    color={product.inStock ? 'success.main' : 'error.main'}
+                    fontWeight="medium"
                   >
-                    품절
-                  </button>
+                    {product.inStock 
+                      ? `재고 ${product.stockQuantity}개 남음` 
+                      : '품절'
+                    }
+                  </Typography>
+                </Stack>
+
+                {/* 태그들 */}
+                {product.tags.length > 0 && (
+                  <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
+                    {product.tags.map((tag, index) => (
+                      <Chip
+                        key={index}
+                        label={tag}
+                        size="small"
+                        variant="outlined"
+                        sx={{ bgcolor: alpha(theme.palette.grey[500], 0.1) }}
+                      />
+                    ))}
+                  </Stack>
                 )}
-              </div>
-            </div>
-          </div>
+
+                {/* 수량 선택 */}
+                {product.inStock && (
+                  <Stack spacing={2}>
+                    <Stack direction="row" alignItems="center" spacing={2}>
+                      <Typography variant="body1" fontWeight="medium">
+                        수량:
+                      </Typography>
+                      <ButtonGroup variant="outlined" size="small">
+                        <IconButton
+                          onClick={() => handleQuantityChange(quantity - 1)}
+                          disabled={quantity <= 1}
+                        >
+                          <RemoveIcon />
+                        </IconButton>
+                        <Box
+                          sx={{
+                            px: 3,
+                            py: 1,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: `1px solid ${theme.palette.divider}`,
+                            borderLeft: 0,
+                            borderRight: 0,
+                            minWidth: 60
+                          }}
+                        >
+                          <Typography variant="body2" fontWeight="medium">
+                            {quantity}
+                          </Typography>
+                        </Box>
+                        <IconButton
+                          onClick={() => handleQuantityChange(quantity + 1)}
+                          disabled={quantity >= product.stockQuantity}
+                        >
+                          <AddIcon />
+                        </IconButton>
+                      </ButtonGroup>
+                    </Stack>
+
+                    {/* 총 가격 */}
+                    <Typography variant="h6" fontWeight="medium">
+                      총 가격: {formatPrice(product.price * quantity)}원
+                    </Typography>
+                  </Stack>
+                )}
+
+                {/* 구매 버튼들 */}
+                <Stack spacing={2}>
+                  {product.inStock ? (
+                    <>
+                      <Button
+                        variant="outlined"
+                        size="large"
+                        startIcon={<CartIcon />}
+                        onClick={handleAddToCart}
+                        sx={{ py: 1.5 }}
+                      >
+                        장바구니 담기
+                      </Button>
+                      <Button
+                        variant="contained"
+                        size="large"
+                        startIcon={<BuyIcon />}
+                        onClick={handleBuyNow}
+                        sx={{ py: 1.5 }}
+                      >
+                        바로 구매
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      size="large"
+                      disabled
+                      sx={{ py: 1.5 }}
+                    >
+                      품절
+                    </Button>
+                  )}
+                  
+                  <Button
+                    variant="text"
+                    startIcon={isFavorite ? <FavoriteIcon /> : <FavoriteOutlineIcon />}
+                    onClick={() => setIsFavorite(!isFavorite)}
+                    color={isFavorite ? "error" : "inherit"}
+                  >
+                    찜하기
+                  </Button>
+                </Stack>
+              </Stack>
+            </Grid2>
+          </Grid2>
 
           {/* 상품 상세 탭 */}
-          <div className="border-t border-gray-200">
-            {/* 탭 헤더 */}
-            <div className="flex border-b border-gray-200">
-              <button
-                onClick={() => setSelectedTab('description')}
-                className={`px-6 py-4 text-sm font-medium transition-colors ${
-                  selectedTab === 'description'
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                상품 설명
-              </button>
-              <button
-                onClick={() => setSelectedTab('specifications')}
-                className={`px-6 py-4 text-sm font-medium transition-colors ${
-                  selectedTab === 'specifications'
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                상품 정보
-              </button>
-              <button
-                onClick={() => setSelectedTab('reviews')}
-                className={`px-6 py-4 text-sm font-medium transition-colors ${
-                  selectedTab === 'reviews'
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                리뷰 ({product.reviewCount})
-              </button>
-            </div>
+          <Box>
+            <Tabs
+              value={selectedTab}
+              onChange={handleTabChange}
+              aria-label="product detail tabs"
+              sx={{ borderBottom: 1, borderColor: 'divider' }}
+            >
+              <Tab label="상품 설명" />
+              <Tab label="상품 정보" />
+              <Tab label={`리뷰 (${product.reviewCount})`} />
+            </Tabs>
 
-            {/* 탭 내용 */}
-            <div className="p-6 lg:p-8">
-              {selectedTab === 'description' && (
-                <div className="prose max-w-none">
-                  <p className="text-gray-700 leading-relaxed">
-                    {product.description}
-                  </p>
-                </div>
-              )}
+            <TabPanel value={selectedTab} index={0}>
+              <Typography variant="body1" sx={{ lineHeight: 1.8 }}>
+                {product.description}
+              </Typography>
+            </TabPanel>
 
-              {selectedTab === 'specifications' && (
-                <div className="space-y-4">
-                  {product.specifications ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <TabPanel value={selectedTab} index={1}>
+              {product.specifications ? (
+                <TableContainer>
+                  <Table>
+                    <TableBody>
                       {Object.entries(product.specifications).map(([key, value]) => (
-                        <div key={key} className="flex justify-between py-2 border-b border-gray-100">
-                          <span className="text-gray-600 font-medium">{key}</span>
-                          <span className="text-gray-900">{value}</span>
-                        </div>
+                        <TableRow key={key}>
+                          <TableCell
+                            component="th"
+                            scope="row"
+                            sx={{ fontWeight: 'medium', bgcolor: 'grey.50' }}
+                          >
+                            {key}
+                          </TableCell>
+                          <TableCell>{value}</TableCell>
+                        </TableRow>
                       ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-500">상품 정보가 없습니다.</p>
-                  )}
-                </div>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              ) : (
+                <Typography color="text.secondary">
+                  상품 정보가 없습니다.
+                </Typography>
               )}
+            </TabPanel>
 
-              {selectedTab === 'reviews' && (
-                <div className="text-center py-12">
-                  <div className="text-gray-400 text-4xl mb-4">💬</div>
-                  <p className="text-gray-500">리뷰 기능은 추후 구현됩니다.</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+            <TabPanel value={selectedTab} index={2}>
+              <Box sx={{ textAlign: 'center', py: 6 }}>
+                <Typography variant="h1" sx={{ fontSize: '4rem', mb: 2 }}>
+                  💬
+                </Typography>
+                <Typography variant="h6" color="text.secondary">
+                  리뷰 기능은 추후 구현됩니다.
+                </Typography>
+              </Box>
+            </TabPanel>
+          </Box>
+        </Paper>
 
         {/* 관련 상품 */}
         {relatedProductsData && relatedProductsData.products.length > 0 && (
-          <div className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
+          <Box>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{ mb: 3 }}
+            >
+              <Typography variant="h4" fontWeight="bold">
                 같은 카테고리 상품
-              </h2>
-              <Link 
+              </Typography>
+              <Button
+                component={Link}
                 to={`/products?category=${product.categoryId}`}
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                variant="text"
+                endIcon="→"
               >
-                더 보기 →
-              </Link>
-            </div>
+                더 보기
+              </Button>
+            </Stack>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Grid2 container spacing={3}>
               {relatedProductsData.products
                 .filter(p => p.id !== product.id)
                 .slice(0, 4)
                 .map((relatedProduct) => (
-                  <ProductCard 
-                    key={relatedProduct.id} 
-                    product={relatedProduct}
-                  />
+                  <Grid2 xs={12} sm={6} md={3} key={relatedProduct.id}>
+                    <ProductCard product={relatedProduct} />
+                  </Grid2>
                 ))
               }
-            </div>
-          </div>
+            </Grid2>
+          </Box>
         )}
-      </div>
-    </div>
+      </Container>
+    </Box>
   );
 };
 

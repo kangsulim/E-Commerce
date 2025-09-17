@@ -1,4 +1,6 @@
 import React from 'react';
+import { Box, Grid2, Typography, Stack } from '@mui/material';
+import { Inventory as InventoryIcon } from '@mui/icons-material';
 import { Product } from '../../data/mockProducts';
 import ProductCard from './ProductCard';
 import { ProductGridSkeleton } from '../common/ProductSkeleton';
@@ -21,28 +23,56 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   if (products.length === 0) {
     return (
-      <div className={`flex flex-col items-center justify-center py-16 ${className}`}>
-        <div className="text-gray-400 text-6xl mb-4">📦</div>
-        <h3 className="text-xl font-semibold text-gray-700 mb-2">
+      <Box
+        className={className}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          py: 8,
+          textAlign: 'center'
+        }}
+      >
+        <InventoryIcon 
+          sx={{ 
+            fontSize: 80, 
+            color: 'text.disabled', 
+            mb: 2 
+          }} 
+        />
+        <Typography variant="h5" fontWeight="medium" sx={{ mb: 1 }}>
           상품이 없습니다
-        </h3>
-        <p className="text-gray-500 text-center">
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
           검색 조건을 변경하거나 다른 카테고리를 확인해보세요.
-        </p>
-      </div>
+        </Typography>
+      </Box>
     );
   }
 
   return (
-    <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${className}`}>
+    <Grid2 
+      container 
+      spacing={3} 
+      className={className}
+    >
       {products.map((product) => (
-        <ProductCard 
-          key={product.id} 
-          product={product}
-          className="h-full"
-        />
+        <Grid2 
+          xs={12} 
+          sm={6} 
+          md={4} 
+          lg={3} 
+          key={product.id}
+          sx={{ display: 'flex' }}
+        >
+          <ProductCard 
+            product={product}
+            className="w-full"
+          />
+        </Grid2>
       ))}
-    </div>
+    </Grid2>
   );
 };
 

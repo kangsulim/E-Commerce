@@ -1,4 +1,12 @@
 import React from 'react';
+import {
+  Box,
+  Card,
+  CardContent,
+  Skeleton,
+  Stack,
+  Grid2
+} from '@mui/material';
 
 interface ProductSkeletonProps {
   className?: string;
@@ -6,38 +14,44 @@ interface ProductSkeletonProps {
 
 const ProductSkeleton: React.FC<ProductSkeletonProps> = ({ className = '' }) => {
   return (
-    <div className={`bg-white rounded-lg shadow-md overflow-hidden animate-pulse ${className}`}>
+    <Card className={className} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* 이미지 스켈레톤 */}
-      <div className="aspect-square bg-gray-200"></div>
+      <Skeleton 
+        variant="rectangular" 
+        sx={{ aspectRatio: '1', width: '100%' }}
+        animation="wave"
+      />
       
       {/* 콘텐츠 스켈레톤 */}
-      <div className="p-4 space-y-3">
-        {/* 카테고리 */}
-        <div className="h-4 bg-gray-200 rounded w-16"></div>
-        
-        {/* 상품명 (2줄) */}
-        <div className="space-y-2">
-          <div className="h-4 bg-gray-200 rounded w-full"></div>
-          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-        </div>
-        
-        {/* 평점 및 리뷰 */}
-        <div className="flex items-center gap-2">
-          <div className="h-4 bg-gray-200 rounded w-20"></div>
-          <div className="h-4 bg-gray-200 rounded w-8"></div>
-          <div className="h-4 bg-gray-200 rounded w-12"></div>
-        </div>
-        
-        {/* 가격 정보 */}
-        <div className="space-y-1">
-          <div className="h-4 bg-gray-200 rounded w-24"></div>
-          <div className="h-6 bg-gray-200 rounded w-32"></div>
-        </div>
-        
-        {/* 배송 정보 */}
-        <div className="h-4 bg-gray-200 rounded w-20"></div>
-      </div>
-    </div>
+      <CardContent sx={{ flexGrow: 1 }}>
+        <Stack spacing={1.5}>
+          {/* 카테고리 */}
+          <Skeleton variant="text" width={64} height={16} />
+          
+          {/* 상품명 (2줄) */}
+          <Stack spacing={0.5}>
+            <Skeleton variant="text" width="100%" height={20} />
+            <Skeleton variant="text" width="75%" height={20} />
+          </Stack>
+          
+          {/* 평점 및 리뷰 */}
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Skeleton variant="text" width={80} height={16} />
+            <Skeleton variant="text" width={32} height={16} />
+            <Skeleton variant="text" width={48} height={16} />
+          </Stack>
+          
+          {/* 가격 정보 */}
+          <Stack spacing={0.5}>
+            <Skeleton variant="text" width={96} height={16} />
+            <Skeleton variant="text" width={128} height={24} />
+          </Stack>
+          
+          {/* 배송 정보 */}
+          <Skeleton variant="text" width={80} height={16} />
+        </Stack>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -52,11 +66,13 @@ export const ProductGridSkeleton: React.FC<ProductGridSkeletonProps> = ({
   className = '' 
 }) => {
   return (
-    <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${className}`}>
+    <Grid2 container spacing={3} className={className}>
       {Array.from({ length: count }).map((_, index) => (
-        <ProductSkeleton key={index} />
+        <Grid2 xs={12} sm={6} md={4} lg={3} key={index}>
+          <ProductSkeleton />
+        </Grid2>
       ))}
-    </div>
+    </Grid2>
   );
 };
 
@@ -66,40 +82,47 @@ export const ProductListSkeleton: React.FC<ProductGridSkeletonProps> = ({
   className = '' 
 }) => {
   return (
-    <div className={`space-y-6 ${className}`}>
+    <Stack spacing={3} className={className}>
       {Array.from({ length: count }).map((_, index) => (
-        <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
-          <div className="flex">
+        <Card key={index}>
+          <Box sx={{ display: 'flex' }}>
             {/* 이미지 */}
-            <div className="w-48 h-48 bg-gray-200 flex-shrink-0"></div>
+            <Skeleton 
+              variant="rectangular" 
+              width={192} 
+              height={192}
+              sx={{ flexShrink: 0 }}
+            />
             
             {/* 콘텐츠 */}
-            <div className="flex-1 p-6 space-y-4">
-              {/* 카테고리 */}
-              <div className="h-4 bg-gray-200 rounded w-20"></div>
-              
-              {/* 상품명 */}
-              <div className="space-y-2">
-                <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-              </div>
-              
-              {/* 평점 */}
-              <div className="flex items-center gap-2">
-                <div className="h-4 bg-gray-200 rounded w-24"></div>
-                <div className="h-4 bg-gray-200 rounded w-16"></div>
-              </div>
-              
-              {/* 가격 */}
-              <div className="space-y-2">
-                <div className="h-4 bg-gray-200 rounded w-32"></div>
-                <div className="h-8 bg-gray-200 rounded w-40"></div>
-              </div>
-            </div>
-          </div>
-        </div>
+            <CardContent sx={{ flexGrow: 1, p: 3 }}>
+              <Stack spacing={2}>
+                {/* 카테고리 */}
+                <Skeleton variant="text" width={80} height={16} />
+                
+                {/* 상품명 */}
+                <Stack spacing={1}>
+                  <Skeleton variant="text" width="75%" height={24} />
+                  <Skeleton variant="text" width="50%" height={16} />
+                </Stack>
+                
+                {/* 평점 */}
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Skeleton variant="text" width={96} height={16} />
+                  <Skeleton variant="text" width={64} height={16} />
+                </Stack>
+                
+                {/* 가격 */}
+                <Stack spacing={1}>
+                  <Skeleton variant="text" width={128} height={16} />
+                  <Skeleton variant="text" width={160} height={32} />
+                </Stack>
+              </Stack>
+            </CardContent>
+          </Box>
+        </Card>
       ))}
-    </div>
+    </Stack>
   );
 };
 

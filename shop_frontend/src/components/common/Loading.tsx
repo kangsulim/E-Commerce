@@ -1,69 +1,74 @@
 import React from 'react';
+import {
+  Box,
+  CircularProgress,
+  Typography,
+  Button,
+  LinearProgress,
+  Skeleton as MuiSkeleton,
+  Stack,
+  Backdrop,
+  useTheme
+} from '@mui/material';
 
 interface LoadingSpinnerProps {
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-  color?: 'blue' | 'gray' | 'white';
+  size?: number | 'small' | 'medium' | 'large';
+  color?: 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success' | 'inherit';
   className?: string;
 }
 
 export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  size = 'md',
-  color = 'blue',
+  size = 'medium',
+  color = 'primary',
   className = ''
 }) => {
-  const sizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-6 h-6',
-    lg: 'w-8 h-8',
-    xl: 'w-12 h-12'
-  };
-
-  const colorClasses = {
-    blue: 'text-blue-600',
-    gray: 'text-gray-600',
-    white: 'text-white'
-  };
-
   return (
-    <svg
-      className={`animate-spin ${sizeClasses[size]} ${colorClasses[color]} ${className}`}
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-      />
-    </svg>
+    <CircularProgress
+      size={size}
+      color={color}
+      className={className}
+    />
   );
 };
 
 interface LoadingOverlayProps {
   message?: string;
+  open?: boolean;
   className?: string;
 }
 
 export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
   message = '로딩 중...',
+  open = true,
   className = ''
 }) => {
+  const theme = useTheme();
+
   return (
-    <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ${className}`}>
-      <div className="bg-white rounded-lg p-8 text-center shadow-xl">
-        <LoadingSpinner size="lg" className="mx-auto mb-4" />
-        <p className="text-gray-700 font-medium">{message}</p>
-      </div>
-    </div>
+    <Backdrop
+      open={open}
+      sx={{
+        color: '#fff',
+        zIndex: theme.zIndex.modal + 1,
+        ...className
+      }}
+    >
+      <Box
+        sx={{
+          bgcolor: 'background.paper',
+          borderRadius: 2,
+          p: 4,
+          textAlign: 'center',
+          boxShadow: theme.shadows[8],
+          color: 'text.primary'
+        }}
+      >
+        <CircularProgress size={60} sx={{ mb: 2 }} />
+        <Typography variant="h6" fontWeight="medium">
+          {message}
+        </Typography>
+      </Box>
+    </Backdrop>
   );
 };
 
@@ -76,33 +81,57 @@ export const PageLoading: React.FC<PageLoadingProps> = ({
   message = '페이지를 불러오는 중...',
   className = ''
 }) => {
+  const theme = useTheme();
+
   return (
-    <div className={`min-h-screen bg-gray-50 flex items-center justify-center ${className}`}>
-      <div className="text-center">
-        <LoadingSpinner size="xl" className="mx-auto mb-6" />
-        <h2 className="text-xl font-semibold text-gray-700 mb-2">{message}</h2>
-        <p className="text-gray-500">잠시만 기다려주세요</p>
-      </div>
-    </div>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        bgcolor: theme.palette.grey[50],
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        ...className
+      }}
+    >
+      <Box textAlign="center">
+        <CircularProgress size={80} sx={{ mb: 3 }} />
+        <Typography variant="h5" fontWeight="medium" sx={{ mb: 1 }}>
+          {message}
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          잠시만 기다려주세요
+        </Typography>
+      </Box>
+    </Box>
   );
 };
 
 interface InlineLoadingProps {
   message?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: number | 'small' | 'medium' | 'large';
   className?: string;
 }
 
 export const InlineLoading: React.FC<InlineLoadingProps> = ({
   message = '로딩 중...',
-  size = 'md',
+  size = 'medium',
   className = ''
 }) => {
   return (
-    <div className={`flex items-center justify-center gap-3 py-8 ${className}`}>
-      <LoadingSpinner size={size} />
-      <span className="text-gray-600">{message}</span>
-    </div>
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 2,
+        py: 4,
+        ...className
+      }}
+    >
+      <CircularProgress size={size} />
+      <Typography color="text.secondary">{message}</Typography>
+    </Box>
   );
 };
 
@@ -110,162 +139,182 @@ interface ButtonLoadingProps {
   children: React.ReactNode;
   loading?: boolean;
   disabled?: boolean;
-  className?: string;
+  variant?: 'text' | 'outlined' | 'contained';
+  color?: 'inherit' | 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning';
+  size?: 'small' | 'medium' | 'large';
   onClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
+  sx?: any;
 }
 
 export const ButtonLoading: React.FC<ButtonLoadingProps> = ({
   children,
   loading = false,
   disabled = false,
-  className = '',
+  variant = 'contained',
+  color = 'primary',
+  size = 'medium',
   onClick,
-  type = 'button'
+  type = 'button',
+  sx = {}
 }) => {
   return (
-    <button
+    <Button
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
-      className={`relative inline-flex items-center justify-center gap-2 transition-all duration-200 ${
-        loading || disabled ? 'opacity-50 cursor-not-allowed' : ''
-      } ${className}`}
+      variant={variant}
+      color={color}
+      size={size}
+      startIcon={loading ? <CircularProgress size={16} color="inherit" /> : undefined}
+      sx={{
+        position: 'relative',
+        ...sx
+      }}
     >
-      {loading && (
-        <LoadingSpinner size="sm" color="white" className="absolute" />
-      )}
-      <span className={loading ? 'opacity-0' : 'opacity-100'}>
-        {children}
-      </span>
-    </button>
+      {children}
+    </Button>
   );
 };
 
 // 스켈레톤 로딩을 위한 컴포넌트들
 interface SkeletonProps {
-  className?: string;
-  animate?: boolean;
+  variant?: 'text' | 'rectangular' | 'rounded' | 'circular';
+  width?: number | string;
+  height?: number | string;
+  animation?: 'pulse' | 'wave' | false;
+  sx?: any;
 }
 
 export const Skeleton: React.FC<SkeletonProps> = ({
-  className = '',
-  animate = true
+  variant = 'rectangular',
+  width,
+  height,
+  animation = 'pulse',
+  sx = {}
 }) => {
   return (
-    <div
-      className={`bg-gray-200 rounded ${animate ? 'animate-pulse' : ''} ${className}`}
+    <MuiSkeleton
+      variant={variant}
+      width={width}
+      height={height}
+      animation={animation}
+      sx={sx}
     />
   );
 };
 
 export const SkeletonText: React.FC<{
   lines?: number;
-  className?: string;
+  sx?: any;
 }> = ({
   lines = 3,
-  className = ''
+  sx = {}
 }) => {
   return (
-    <div className={`space-y-2 ${className}`}>
+    <Stack spacing={1} sx={sx}>
       {Array.from({ length: lines }).map((_, index) => (
-        <Skeleton
+        <MuiSkeleton
           key={index}
-          className={`h-4 ${
-            index === lines - 1 ? 'w-3/4' : 'w-full'
-          }`}
+          variant="text"
+          width={index === lines - 1 ? '75%' : '100%'}
+          height={20}
         />
       ))}
-    </div>
+    </Stack>
   );
 };
 
 interface LoadingDotsProps {
-  size?: 'sm' | 'md' | 'lg';
-  color?: 'blue' | 'gray' | 'white';
-  className?: string;
+  size?: number;
+  color?: string;
+  sx?: any;
 }
 
 export const LoadingDots: React.FC<LoadingDotsProps> = ({
-  size = 'md',
-  color = 'blue',
-  className = ''
+  size = 8,
+  color = 'primary.main',
+  sx = {}
 }) => {
-  const sizeClasses = {
-    sm: 'w-1 h-1',
-    md: 'w-2 h-2',
-    lg: 'w-3 h-3'
-  };
-
-  const colorClasses = {
-    blue: 'bg-blue-600',
-    gray: 'bg-gray-600',
-    white: 'bg-white'
-  };
+  const theme = useTheme();
 
   return (
-    <div className={`flex items-center space-x-1 ${className}`}>
+    <Stack direction="row" spacing={0.5} alignItems="center" sx={sx}>
       {[0, 1, 2].map((index) => (
-        <div
+        <Box
           key={index}
-          className={`${sizeClasses[size]} ${colorClasses[color]} rounded-full animate-bounce`}
-          style={{
+          sx={{
+            width: size,
+            height: size,
+            borderRadius: '50%',
+            bgcolor: color,
+            animation: 'bounce 1s infinite',
             animationDelay: `${index * 0.2}s`,
-            animationDuration: '1s'
+            '@keyframes bounce': {
+              '0%, 80%, 100%': {
+                transform: 'scale(0)'
+              },
+              '40%': {
+                transform: 'scale(1)'
+              }
+            }
           }}
         />
       ))}
-    </div>
+    </Stack>
   );
 };
 
 // 진행률 표시기
 interface ProgressBarProps {
   progress: number; // 0-100
-  size?: 'sm' | 'md' | 'lg';
-  color?: 'blue' | 'green' | 'red';
+  size?: 'small' | 'medium' | 'large';
+  color?: 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success';
   showLabel?: boolean;
-  className?: string;
+  variant?: 'determinate' | 'indeterminate';
+  sx?: any;
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({
   progress,
-  size = 'md',
-  color = 'blue',
+  size = 'medium',
+  color = 'primary',
   showLabel = true,
-  className = ''
+  variant = 'determinate',
+  sx = {}
 }) => {
-  const sizeClasses = {
-    sm: 'h-1',
-    md: 'h-2',
-    lg: 'h-3'
-  };
-
-  const colorClasses = {
-    blue: 'bg-blue-600',
-    green: 'bg-green-600',
-    red: 'bg-red-600'
-  };
-
+  const theme = useTheme();
   const clampedProgress = Math.min(100, Math.max(0, progress));
 
+  const sizeMap = {
+    small: 4,
+    medium: 6,
+    large: 8
+  };
+
   return (
-    <div className={className}>
+    <Box sx={sx}>
       {showLabel && (
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm text-gray-600">진행률</span>
-          <span className="text-sm font-medium text-gray-900">
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+          <Typography variant="body2" color="text.secondary">
+            진행률
+          </Typography>
+          <Typography variant="body2" fontWeight="medium">
             {Math.round(clampedProgress)}%
-          </span>
-        </div>
+          </Typography>
+        </Box>
       )}
-      <div className={`w-full bg-gray-200 rounded-full ${sizeClasses[size]}`}>
-        <div
-          className={`${sizeClasses[size]} ${colorClasses[color]} rounded-full transition-all duration-300 ease-out`}
-          style={{ width: `${clampedProgress}%` }}
-        />
-      </div>
-    </div>
+      <LinearProgress
+        variant={variant}
+        value={clampedProgress}
+        color={color}
+        sx={{
+          height: sizeMap[size],
+          borderRadius: 1,
+          bgcolor: theme.palette.grey[200]
+        }}
+      />
+    </Box>
   );
 };
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Box, Container, CircularProgress, Typography } from '@mui/material';
 import { RegisterForm } from '../components/auth/RegisterForm';
 import { useAuth } from '../hooks/useAuth';
 import { Navigate } from 'react-router-dom';
@@ -9,9 +10,22 @@ const RegisterPage: React.FC = () => {
   // 이미 로그인된 사용자는 홈으로 리다이렉트
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="loading-spinner">로딩 중...</div>
-      </div>
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: 'grey.50'
+        }}
+      >
+        <Box textAlign="center">
+          <CircularProgress size={48} sx={{ mb: 2 }} />
+          <Typography variant="body1" color="text.secondary">
+            로딩 중...
+          </Typography>
+        </Box>
+      </Box>
     );
   }
 
@@ -20,11 +34,20 @@ const RegisterPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8">
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        bgcolor: 'grey.50',
+        py: 4
+      }}
+    >
+      <Container maxWidth="sm">
         <RegisterForm />
-      </div>
-    </div>
+      </Container>
+    </Box>
   );
 };
 

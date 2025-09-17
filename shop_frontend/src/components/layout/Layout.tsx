@@ -1,17 +1,27 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
+import { Box, useTheme } from '@mui/material';
 import Header from './Header';
 import Footer from './Footer';
 
 const Layout: React.FC = () => {
+  const theme = useTheme();
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <Box
+      sx={{
+        minHeight: '100vh',
+        bgcolor: theme.palette.grey[50],
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
       <Header />
-      <main className="flex-1">
+      <Box component="main" sx={{ flexGrow: 1 }}>
         <Outlet />
-      </main>
+      </Box>
       <Footer />
-    </div>
+    </Box>
   );
 };
 

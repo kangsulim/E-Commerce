@@ -1,4 +1,21 @@
 import React, { useState } from 'react';
+import {
+  Box,
+  IconButton,
+  Modal,
+  Backdrop,
+  Grid2,
+  useTheme,
+  alpha
+} from '@mui/material';
+import {
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+  ZoomIn as ZoomInIcon,
+  ZoomOut as ZoomOutIcon,
+  Close as CloseIcon,
+  CameraAlt as CameraIcon
+} from '@mui/icons-material';
 
 interface ProductImageGalleryProps {
   images: string[];
@@ -11,6 +28,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
   productName,
   className = ''
 }) => {
+  const theme = useTheme();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
 
@@ -34,173 +52,331 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
     );
   };
 
+  const handleCloseModal = () => {
+    setIsZoomed(false);
+  };
+
   if (!images || images.length === 0) {
     return (
-      <div className={`bg-gray-200 rounded-lg flex items-center justify-center ${className}`}>
-        <div className="text-gray-400 text-center">
-          <div className="text-4xl mb-2">📷</div>
-          <div>이미지 없음</div>
-        </div>
-      </div>
+      <Box
+        className={className}
+        sx={{
+          bgcolor: 'grey.200',
+          borderRadius: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          aspectRatio: '1',
+          color: 'text.disabled'
+        }}
+      >
+        <Box textAlign="center">
+          <CameraIcon sx={{ fontSize: 60, mb: 1 }} />
+          <Box component="span" variant="body2">
+            이미지 없음
+          </Box>
+        </Box>
+      </Box>
     );
   }
 
   return (
-    <div className={`${className}`}>
+    <Box className={className}>
       {/* 메인 이미지 */}
-      <div className="relative mb-4 group">
-        <div 
-          className={`relative overflow-hidden rounded-lg bg-gray-100 cursor-pointer transition-all duration-300 ${
-            isZoomed ? 'transform scale-105' : ''
-          }`}
+      <Box sx={{ position: 'relative', mb: 2 }}>
+        <Box
           onClick={handleMainImageClick}
+          sx={{
+            position: 'relative',
+            overflow: 'hidden',
+            borderRadius: 2,
+            bgcolor: 'grey.100',
+            cursor: 'pointer',
+            aspectRatio: '1',
+            transition: 'transform 0.3s ease',
+            '&:hover': {
+              '& .hover-overlay': {
+                opacity: 1
+              },
+              '& .main-image': {
+                transform: 'scale(1.05)'
+              }
+            }
+          }}
         >
-          <img
+          <Box
+            component="img"
+            className="main-image"
             src={images[selectedImageIndex]}
             alt={`${productName} - 이미지 ${selectedImageIndex + 1}`}
-            className="w-full h-96 md:h-[500px] object-cover transition-transform duration-300 hover:scale-105"
+            sx={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              transition: 'transform 0.3s ease'
+            }}
           />
           
-          {/* 확대/축소 아이콘 */}
-          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center">
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white bg-opacity-90 rounded-full p-2">
-              {isZoomed ? (
-                <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
-                </svg>
-              ) : (
-                <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-                </svg>
-              )}
-            </div>
-          </div>
-        </div>
+          {/* 확대/축소 오버레이 */}
+          <Box
+            className="hover-overlay"
+            sx={{
+              position: 'absolute',
+              inset: 0,
+              bgcolor: alpha(theme.palette.common.black, 0.1),
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: 0,
+              transition: 'opacity 0.3s ease'
+            }}
+          >
+            <Box
+              sx={{
+                bgcolor: alpha(theme.palette.common.white, 0.9),
+                borderRadius: '50%',
+                p: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <ZoomInIcon sx={{ color: 'grey.700' }} />
+            </Box>
+          </Box>
+        </Box>
 
-        {/* 이전/다음 버튼 (이미지가 2개 이상일 때만 표시) */}
+        {/* 이전/다음 버튼 */}
         {images.length > 1 && (
           <>
-            <button
+            <IconButton
               onClick={handlePrevImage}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-md transition-all duration-200 opacity-0 group-hover:opacity-100"
+              sx={{
+                position: 'absolute',
+                left: 8,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                bgcolor: alpha(theme.palette.common.white, 0.8),
+                opacity: 0,
+                transition: 'opacity 0.3s ease',
+                '&:hover': {
+                  bgcolor: 'white'
+                },
+                '.hover-overlay:hover ~ &, &:hover': {
+                  opacity: 1
+                }
+              }}
             >
-              <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
+              <ChevronLeftIcon />
+            </IconButton>
             
-            <button
+            <IconButton
               onClick={handleNextImage}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-md transition-all duration-200 opacity-0 group-hover:opacity-100"
+              sx={{
+                position: 'absolute',
+                right: 8,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                bgcolor: alpha(theme.palette.common.white, 0.8),
+                opacity: 0,
+                transition: 'opacity 0.3s ease',
+                '&:hover': {
+                  bgcolor: 'white'
+                },
+                '.hover-overlay:hover ~ &, &:hover': {
+                  opacity: 1
+                }
+              }}
             >
-              <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
+              <ChevronRightIcon />
+            </IconButton>
           </>
         )}
 
         {/* 이미지 인디케이터 */}
         {images.length > 1 && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: 16,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              gap: 1
+            }}
+          >
             {images.map((_, index) => (
-              <button
+              <Box
                 key={index}
                 onClick={() => handleThumbnailClick(index)}
-                className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                  index === selectedImageIndex
-                    ? 'bg-white'
-                    : 'bg-white bg-opacity-50 hover:bg-opacity-75'
-                }`}
+                sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  bgcolor: index === selectedImageIndex 
+                    ? 'white' 
+                    : alpha(theme.palette.common.white, 0.5),
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s ease',
+                  '&:hover': {
+                    bgcolor: alpha(theme.palette.common.white, 0.75)
+                  }
+                }}
               />
             ))}
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
 
       {/* 썸네일 목록 */}
       {images.length > 1 && (
-        <div className="grid grid-cols-4 gap-2">
+        <Grid2 container spacing={1}>
           {images.map((image, index) => (
-            <button
-              key={index}
-              onClick={() => handleThumbnailClick(index)}
-              className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 ${
-                index === selectedImageIndex
-                  ? 'border-blue-500 ring-2 ring-blue-200'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <img
-                src={image}
-                alt={`${productName} - 썸네일 ${index + 1}`}
-                className="w-full h-full object-cover"
-              />
-              
-              {/* 선택된 썸네일 오버레이 */}
-              {index === selectedImageIndex && (
-                <div className="absolute inset-0 bg-blue-500 bg-opacity-20"></div>
-              )}
-            </button>
+            <Grid2 xs={3} key={index}>
+              <Box
+                onClick={() => handleThumbnailClick(index)}
+                sx={{
+                  position: 'relative',
+                  aspectRatio: '1',
+                  borderRadius: 1,
+                  overflow: 'hidden',
+                  border: 2,
+                  borderColor: index === selectedImageIndex 
+                    ? 'primary.main' 
+                    : 'grey.300',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.2s ease',
+                  '&:hover': {
+                    borderColor: index === selectedImageIndex 
+                      ? 'primary.main' 
+                      : 'grey.400'
+                  }
+                }}
+              >
+                <Box
+                  component="img"
+                  src={image}
+                  alt={`${productName} - 썸네일 ${index + 1}`}
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+                
+                {/* 선택된 썸네일 오버레이 */}
+                {index === selectedImageIndex && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      inset: 0,
+                      bgcolor: alpha(theme.palette.primary.main, 0.2)
+                    }}
+                  />
+                )}
+              </Box>
+            </Grid2>
           ))}
-        </div>
+        </Grid2>
       )}
 
       {/* 확대된 이미지 모달 */}
-      {isZoomed && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
-          onClick={() => setIsZoomed(false)}
+      <Modal
+        open={isZoomed}
+        onClose={handleCloseModal}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+          sx: { bgcolor: alpha(theme.palette.common.black, 0.8) }
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            maxWidth: '90vw',
+            maxHeight: '90vh',
+            outline: 'none'
+          }}
         >
-          <div className="relative max-w-4xl max-h-full">
-            <img
+          <Box sx={{ position: 'relative' }}>
+            <Box
+              component="img"
               src={images[selectedImageIndex]}
               alt={`${productName} - 확대 이미지`}
-              className="max-w-full max-h-full object-contain"
+              sx={{
+                maxWidth: '100%',
+                maxHeight: '90vh',
+                objectFit: 'contain',
+                borderRadius: 1
+              }}
             />
             
             {/* 닫기 버튼 */}
-            <button
-              onClick={() => setIsZoomed(false)}
-              className="absolute top-4 right-4 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 transition-all duration-200"
+            <IconButton
+              onClick={handleCloseModal}
+              sx={{
+                position: 'absolute',
+                top: 16,
+                right: 16,
+                bgcolor: alpha(theme.palette.common.white, 0.8),
+                '&:hover': {
+                  bgcolor: 'white'
+                }
+              }}
             >
-              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+              <CloseIcon />
+            </IconButton>
 
             {/* 모달에서도 이전/다음 버튼 */}
             {images.length > 1 && (
               <>
-                <button
+                <IconButton
                   onClick={(e) => {
                     e.stopPropagation();
                     handlePrevImage();
                   }}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 transition-all duration-200"
+                  sx={{
+                    position: 'absolute',
+                    left: 16,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    bgcolor: alpha(theme.palette.common.white, 0.8),
+                    '&:hover': {
+                      bgcolor: 'white'
+                    }
+                  }}
                 >
-                  <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
+                  <ChevronLeftIcon />
+                </IconButton>
                 
-                <button
+                <IconButton
                   onClick={(e) => {
                     e.stopPropagation();
                     handleNextImage();
                   }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 transition-all duration-200"
+                  sx={{
+                    position: 'absolute',
+                    right: 16,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    bgcolor: alpha(theme.palette.common.white, 0.8),
+                    '&:hover': {
+                      bgcolor: 'white'
+                    }
+                  }}
                 >
-                  <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
+                  <ChevronRightIcon />
+                </IconButton>
               </>
             )}
-          </div>
-        </div>
-      )}
-    </div>
+          </Box>
+        </Box>
+      </Modal>
+    </Box>
   );
 };
 

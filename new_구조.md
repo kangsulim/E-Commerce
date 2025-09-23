@@ -156,48 +156,58 @@ E-Commerce/
 ## 🔄 기존 구조.md와의 주요 차이점
 
 ### **1. 폴더명 변경**
+
 - `backend/` → `shop_backend/`
 - `frontend/` → `shop_frontend/`
 
 ### **2. 백엔드 패키지 구조 변경**
+
 - `com.mall` → `com.example.shop`
 
 ### **3. 백엔드 DTO 구조 변경**
+
 - **기존**: `dto/request/`, `dto/response/` 분리
 - **현재**: 모듈별 통합 DTO (`AuthDto.java`, `ProductDto.java` 등)
 
 ### **4. 백엔드 추가 구성요소**
+
 - `AdminController.java`, `HealthController.java` 추가
 - `FileProperties.java`, `JwtProperties.java` 설정 파일 추가
 - `util/` 패키지 추가
 
 ### **5. 프론트엔드 상태 관리 변경**
+
 - **기존**: Redux 사용 (`store/` 폴더)
 - **현재**: React Query + Context API 사용
 
 ### **6. 프론트엔드 구조 단순화**
+
 - **components**: common/product/cart/order → auth/layout만
 - **hooks**: 다수의 훅 → useAuth만
 - **services**: xxxApi.ts → xxx.ts
 - **types**: 모듈별 분리 → 통합 index.ts
 
 ### **7. 누락된 폴더/파일**
+
 - `database/` 폴더 (스키마, Docker 설정)
 - `docs/` 폴더 (API 문서, 배포 가이드)
 - `utils/`, `styles/` 폴더 (프론트엔드)
 
 ### **8. 새로 추가된 폴더**
+
 - `개발 내용 정리/` 폴더
 
 ## 📋 현재 구현 상태
 
 ### **✅ 완료된 기능**
+
 - **Phase 1**: 기본 설정 및 인증 시스템
 - **Phase 2**: 상품 관리 기본 구조
 - 백엔드 전체 API 구조 완성
 - 프론트엔드 인증 시스템 완성
 
 ### **🚧 다음 구현 예정**
+
 - **Phase 3**: 상품 조회 기능 (상품 목록, 상세, 검색/필터링)
 - **Phase 4**: 장바구니 및 주문 기능
 - **Phase 5**: 리뷰 시스템 및 관리자 기능
@@ -205,6 +215,7 @@ E-Commerce/
 ## 🛠️ 기술 스택
 
 ### **백엔드**
+
 - Spring Boot 3.5.4
 - Spring Security + JWT
 - Spring Data JPA
@@ -213,6 +224,7 @@ E-Commerce/
 - Swagger/OpenAPI
 
 ### **프론트엔드**
+
 - React 18 + TypeScript
 - Vite
 - React Router DOM
@@ -221,6 +233,7 @@ E-Commerce/
 - ESLint
 
 ### **개발 환경**
+
 - Java 17
 - Node.js
 - MariaDB (localhost:3306)

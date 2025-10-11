@@ -1,25 +1,44 @@
 import { Cart, CartItem } from '../types';
+import { Product } from '../types';
 import { mockProducts } from './mockProducts';
+
+// mockProducts의 타입을 CartItem에 맞게 변환
+const convertMockProduct = (mockProd: typeof mockProducts[0]): Product => {
+  return {
+    id: mockProd.id,
+    name: mockProd.name,
+    description: mockProd.description,
+    price: mockProd.price,
+    stockQuantity: mockProd.stockQuantity,
+    imageUrl: mockProd.images[0],
+    category: {
+      id: mockProd.categoryId,
+      name: mockProd.category,
+    },
+    createdAt: mockProd.createdAt,
+    updatedAt: mockProd.updatedAt,
+  };
+};
 
 // Mock 장바구니 아이템 데이터
 export const mockCartItems: CartItem[] = [
   {
     id: 1,
-    product: mockProducts[0], // 첫 번째 상품
+    product: convertMockProduct(mockProducts[0]),
     quantity: 2,
     createdAt: new Date().toISOString(),
     selected: true,
   },
   {
     id: 2,
-    product: mockProducts[1], // 두 번째 상품
+    product: convertMockProduct(mockProducts[1]),
     quantity: 1,
     createdAt: new Date(Date.now() - 86400000).toISOString(), // 1일 전
     selected: true,
   },
   {
     id: 3,
-    product: mockProducts[2], // 세 번째 상품
+    product: convertMockProduct(mockProducts[2]),
     quantity: 3,
     createdAt: new Date(Date.now() - 172800000).toISOString(), // 2일 전
     selected: false,

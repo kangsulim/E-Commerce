@@ -34,7 +34,9 @@ import {
   AccountCircle as AccountIcon
 } from '@mui/icons-material';
 import { useAuth, useIsAdmin } from '../../hooks/useAuth';
+import { useCartItemCount } from '../../hooks/useCart';
 import SearchBar from '../search/SearchBar';
+import CartDropdown from '../cart/CartDropdown';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
@@ -43,9 +45,11 @@ const Header: React.FC = () => {
   
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
+  const [cartAnchor, setCartAnchor] = useState<null | HTMLElement>(null);
   
   const { user, isAuthenticated, logout } = useAuth();
   const isAdmin = useIsAdmin();
+  const cartItemCount = useCartItemCount();
 
   const handleLogout = () => {
     logout();
@@ -67,6 +71,15 @@ const Header: React.FC = () => {
     setUserMenuAnchor(null);
   };
 
+  // 장바구니 드롭다운 열기/닫기
+  const handleCartOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setCartAnchor(event.currentTarget);
+  };
+
+  const handleCartClose = () => {
+    setCartAnchor(null);
+  };
+
   const navigationItems = [
     { label: '홈', path: '/', icon: <HomeIcon /> },
     { label: '상품', path: '/products', icon: <StoreIcon /> },
@@ -75,214 +88,250 @@ const Header: React.FC = () => {
   ];
 
   return (
-    <AppBar 
-      position="sticky" 
-      elevation={1}
-      sx={{ 
-        bgcolor: 'white',
-        color: 'text.primary',
-        borderBottom: `1px solid ${theme.palette.divider}`
-      }}
-    >
-      <Container maxWidth="xl">
-        <Toolbar sx={{ py: 1 }}>
-          {/* 로고 */}
-          <Typography
-            variant="h5"
-            component={Link}
-            to="/"
-            sx={{
-              fontWeight: 'bold',
-              color: theme.palette.primary.main,
-              textDecoration: 'none',
-              flexShrink: 0,
-              mr: 4,
-              '&:hover': {
-                color: theme.palette.primary.dark
-              }
-            }}
-          >
-            {import.meta.env.VITE_APP_NAME || '온라인 쇼핑몰'}
-          </Typography>
+    <>
+      <AppBar 
+        position="sticky" 
+        elevation={1}
+        sx={{ 
+          bgcolor: 'white',
+          color: 'text.primary',
+          borderBottom: `1px solid ${theme.palette.divider}`
+        }}
+      >
+        <Container maxWidth="xl">
+          <Toolbar sx={{ py: 1 }}>
+            {/* 로고 */}
+            <Typography
+              variant="h5"
+              component={Link}
+              to="/"
+              sx={{
+                fontWeight: 'bold',
+                color: theme.palette.primary.main,
+                textDecoration: 'none',
+                flexShrink: 0,
+                mr: 4,
+                '&:hover': {
+                  color: theme.palette.primary.dark
+                }
+              }}
+            >
+              {import.meta.env.VITE_APP_NAME || '온라인 쇼핑몰'}
+            </Typography>
 
-          {/* 중앙 검색바 (데스크톱) */}
-          {!isMobile && (
-            <Box sx={{ flexGrow: 1, maxWidth: 600, mx: 4 }}>
-              <SearchBar
-                onSearch={handleSearch}
-                placeholder="상품명, 브랜드명으로 검색"
-                className="w-full"
-                showSuggestions={true}
-              />
-            </Box>
-          )}
+            {/* 중앙 검색바 (데스크톱) */}
+            {!isMobile && (
+              <Box sx={{ flexGrow: 1, maxWidth: 600, mx: 4 }}>
+                <SearchBar
+                  onSearch={handleSearch}
+                  placeholder="상품명, 브랜드명으로 검색"
+                  className="w-full"
+                  showSuggestions={true}
+                />
+              </Box>
+            )}
 
-          {/* 네비게이션 (데스크톱) */}
-          {!isMobile && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
-              {navigationItems.map((item) => (
-                <Button
-                  key={item.path}
+            {/* 네비게이션 (데스크톱) */}
+            {!isMobile && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
+                {navigationItems.map((item) => (
+                  <Button
+                    key={item.path}
+                    component={Link}
+                    to={item.path}
+                    startIcon={item.icon}
+                    sx={{
+                      color: 'text.primary',
+                      fontWeight: 'medium',
+                      textTransform: 'none',
+                      '&:hover': {
+                        color: theme.palette.primary.main,
+                        bgcolor: alpha(theme.palette.primary.main, 0.04)
+                      }
+                    }}
+                  >
+                    {item.label}
+                  </Button>
+                ))}
+              </Box>
+            )}
+
+            <Box sx={{ flexGrow: isMobile ? 1 : 0 }} />
+
+            {/* 우측 메뉴 */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              {/* 모바일 검색 버튼 */}
+              {isMobile && (
+                <IconButton
                   component={Link}
-                  to={item.path}
-                  startIcon={item.icon}
-                  sx={{
+                  to="/products"
+                  sx={{ color: 'text.primary' }}
+                >
+                  <SearchIcon />
+                </IconButton>
+              )}
+
+              {/* 장바구니 아이콘 (항상 표시) */}
+              {!isMobile && (
+                <IconButton
+                  onClick={handleCartOpen}
+                  sx={{ 
                     color: 'text.primary',
-                    fontWeight: 'medium',
-                    textTransform: 'none',
                     '&:hover': {
-                      color: theme.palette.primary.main,
                       bgcolor: alpha(theme.palette.primary.main, 0.04)
                     }
                   }}
                 >
-                  {item.label}
-                </Button>
-              ))}
-            </Box>
-          )}
-
-          <Box sx={{ flexGrow: isMobile ? 1 : 0 }} />
-
-          {/* 우측 메뉴 */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            {/* 모바일 검색 버튼 */}
-            {isMobile && (
-              <IconButton
-                component={Link}
-                to="/products"
-                sx={{ color: 'text.primary' }}
-              >
-                <SearchIcon />
-              </IconButton>
-            )}
-
-            {/* 장바구니 (모바일에서만) */}
-            {isMobile && isAuthenticated && (
-              <IconButton
-                component={Link}
-                to="/cart"
-                sx={{ color: 'text.primary' }}
-              >
-                <Badge badgeContent={0} color="primary">
-                  <CartIcon />
-                </Badge>
-              </IconButton>
-            )}
-
-            {/* 사용자 메뉴 */}
-            {isAuthenticated ? (
-              <>
-                <IconButton onClick={handleUserMenuOpen} sx={{ ml: 1 }}>
-                  <Avatar 
-                    sx={{ 
-                      width: 32, 
-                      height: 32, 
-                      bgcolor: theme.palette.primary.main,
-                      fontSize: '0.875rem'
-                    }}
+                  <Badge 
+                    badgeContent={cartItemCount} 
+                    color="primary"
+                    max={99}
                   >
-                    {user?.name?.[0]?.toUpperCase() || 'U'}
-                  </Avatar>
+                    <CartIcon />
+                  </Badge>
                 </IconButton>
-                <Menu
-                  anchorEl={userMenuAnchor}
-                  open={Boolean(userMenuAnchor)}
-                  onClose={handleUserMenuClose}
-                  transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                  anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              )}
+
+              {/* 모바일 장바구니 (링크) */}
+              {isMobile && (
+                <IconButton
+                  component={Link}
+                  to="/cart"
+                  sx={{ color: 'text.primary' }}
                 >
-                  <MenuItem disabled>
-                    <Typography variant="body2" color="text.secondary">
-                      안녕하세요, {user?.name}님
-                    </Typography>
-                  </MenuItem>
-                  <Divider />
-                  <MenuItem
-                    component={Link}
-                    to="/my-page"
-                    onClick={handleUserMenuClose}
+                  <Badge 
+                    badgeContent={cartItemCount} 
+                    color="primary"
+                    max={99}
                   >
-                    <ListItemIcon>
-                      <AccountIcon />
-                    </ListItemIcon>
-                    마이페이지
-                  </MenuItem>
-                  {isAdmin && (
+                    <CartIcon />
+                  </Badge>
+                </IconButton>
+              )}
+
+              {/* 사용자 메뉴 */}
+              {isAuthenticated ? (
+                <>
+                  <IconButton onClick={handleUserMenuOpen} sx={{ ml: 1 }}>
+                    <Avatar 
+                      sx={{ 
+                        width: 32, 
+                        height: 32, 
+                        bgcolor: theme.palette.primary.main,
+                        fontSize: '0.875rem'
+                      }}
+                    >
+                      {user?.name?.[0]?.toUpperCase() || 'U'}
+                    </Avatar>
+                  </IconButton>
+                  <Menu
+                    anchorEl={userMenuAnchor}
+                    open={Boolean(userMenuAnchor)}
+                    onClose={handleUserMenuClose}
+                    transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                    anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                  >
+                    <MenuItem disabled>
+                      <Typography variant="body2" color="text.secondary">
+                        안녕하세요, {user?.name}님
+                      </Typography>
+                    </MenuItem>
+                    <Divider />
                     <MenuItem
                       component={Link}
-                      to="/admin"
+                      to="/my-page"
                       onClick={handleUserMenuClose}
                     >
                       <ListItemIcon>
-                        <AdminIcon />
+                        <AccountIcon />
                       </ListItemIcon>
-                      관리자
+                      마이페이지
                     </MenuItem>
-                  )}
-                  <Divider />
-                  <MenuItem onClick={handleLogout}>
-                    <ListItemIcon>
-                      <LogoutIcon />
-                    </ListItemIcon>
-                    로그아웃
-                  </MenuItem>
-                </Menu>
-              </>
-            ) : (
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button
-                  component={Link}
-                  to="/login"
-                  variant="text"
-                  sx={{
-                    color: 'text.primary',
-                    textTransform: 'none',
-                    fontWeight: 'medium'
-                  }}
-                >
-                  로그인
-                </Button>
-                <Button
-                  component={Link}
-                  to="/register"
-                  variant="contained"
-                  size="small"
-                  sx={{
-                    textTransform: 'none',
-                    fontWeight: 'medium',
-                    borderRadius: 2
-                  }}
-                >
-                  회원가입
-                </Button>
-              </Box>
-            )}
+                    {isAdmin && (
+                      <MenuItem
+                        component={Link}
+                        to="/admin"
+                        onClick={handleUserMenuClose}
+                      >
+                        <ListItemIcon>
+                          <AdminIcon />
+                        </ListItemIcon>
+                        관리자
+                      </MenuItem>
+                    )}
+                    <Divider />
+                    <MenuItem onClick={handleLogout}>
+                      <ListItemIcon>
+                        <LogoutIcon />
+                      </ListItemIcon>
+                      로그아웃
+                    </MenuItem>
+                  </Menu>
+                </>
+              ) : (
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button
+                    component={Link}
+                    to="/login"
+                    variant="text"
+                    sx={{
+                      color: 'text.primary',
+                      textTransform: 'none',
+                      fontWeight: 'medium'
+                    }}
+                  >
+                    로그인
+                  </Button>
+                  <Button
+                    component={Link}
+                    to="/register"
+                    variant="contained"
+                    size="small"
+                    sx={{
+                      textTransform: 'none',
+                      fontWeight: 'medium',
+                      borderRadius: 2
+                    }}
+                  >
+                    회원가입
+                  </Button>
+                </Box>
+              )}
 
-            {/* 모바일 메뉴 버튼 */}
-            {isMobile && (
-              <IconButton
-                onClick={() => setIsMenuOpen(true)}
-                sx={{ ml: 1, color: 'text.primary' }}
-              >
-                <MenuIcon />
-              </IconButton>
-            )}
-          </Box>
-        </Toolbar>
+              {/* 모바일 메뉴 버튼 */}
+              {isMobile && (
+                <IconButton
+                  onClick={() => setIsMenuOpen(true)}
+                  sx={{ ml: 1, color: 'text.primary' }}
+                >
+                  <MenuIcon />
+                </IconButton>
+              )}
+            </Box>
+          </Toolbar>
 
-        {/* 모바일 검색바 */}
-        {isMobile && (
-          <Box sx={{ pb: 2, px: 2 }}>
-            <SearchBar
-              onSearch={handleSearch}
-              placeholder="상품 검색"
-              className="w-full"
-              showSuggestions={false}
-            />
-          </Box>
-        )}
-      </Container>
+          {/* 모바일 검색바 */}
+          {isMobile && (
+            <Box sx={{ pb: 2, px: 2 }}>
+              <SearchBar
+                onSearch={handleSearch}
+                placeholder="상품 검색"
+                className="w-full"
+                showSuggestions={false}
+              />
+            </Box>
+          )}
+        </Container>
+      </AppBar>
+
+      {/* 장바구니 드롭다운 (데스크톱만) */}
+      {!isMobile && (
+        <CartDropdown
+          anchorEl={cartAnchor}
+          open={Boolean(cartAnchor)}
+          onClose={handleCartClose}
+        />
+      )}
 
       {/* 모바일 드로어 메뉴 */}
       <Drawer
@@ -318,6 +367,13 @@ const Header: React.FC = () => {
             >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.label} />
+              {item.label === '장바구니' && cartItemCount > 0 && (
+                <Badge 
+                  badgeContent={cartItemCount} 
+                  color="primary"
+                  sx={{ ml: 2 }}
+                />
+              )}
             </ListItem>
           ))}
         </List>
@@ -389,7 +445,7 @@ const Header: React.FC = () => {
           )}
         </List>
       </Drawer>
-    </AppBar>
+    </>
   );
 };
 

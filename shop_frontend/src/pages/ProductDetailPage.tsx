@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -37,6 +37,8 @@ import {
   SentimentDissatisfied as SadIcon
 } from '@mui/icons-material';
 import { useProduct, useProducts } from '../hooks/useProducts';
+import { useCart } from '../hooks/useCart';
+import { convertMockProductToProduct } from '../utils/productConverter';
 import Breadcrumb from '../components/common/Breadcrumb';
 import ProductImageGallery from '../components/product/ProductImageGallery';
 import ProductCard from '../components/product/ProductCard';
@@ -70,12 +72,16 @@ function TabPanel(props: TabPanelProps) {
 
 const ProductDetailPage: React.FC = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const productId = id ? parseInt(id) : 0;
   
   const [quantity, setQuantity] = useState(1);
   const [selectedTab, setSelectedTab] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  
+  const { addItem, isInCart, getItemQuantity } = useCart();
   
   // 상품 데이터 조회
   const { data: product, isLoading, error } = useProduct(productId);
@@ -96,18 +102,46 @@ const ProductDetailPage: React.FC = () => {
     }
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!product) return;
     
-    // 장바구니 추가 로직 (추후 구현)
-    alert(`${product.name} ${quantity}개가 장바구니에 추가되었습니다.`);
+    setIsAddingToCart(true);
+    
+    try {
+      const convertedProduct = convertMockProductToProduct(product);
+      await addItem(convertedProduct, quantity);
+      
+      // 성공 메시지와 함께 장바구니로 이동할지 확인
+      const goToCart = window.confirm(
+        `${product.name} ${quantity}개가 장바구니에 추가되었습니다.\n\n장바구니로 이동하시겠습니까?`
+      );
+      
+      if (goToCart) {
+        navigate('/cart');
+      }
+    } catch (error) {
+      alert('장바구니에 추가하는데 실패했습니다. 다시 시도해주세요.');
+      console.error('Failed to add to cart:', error);
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
     if (!product) return;
     
-    // 즉시 구매 로직 (추후 구현)
-    alert(`${product.name} ${quantity}개 즉시 구매로 이동합니다.`);
+    setIsAddingToCart(true);
+    
+    try {
+      // 장바구니에 추가하고 바로 결제 페이지로 이동
+      const convertedProduct = convertMockProductToProduct(product);
+      await addItem(convertedProduct, quantity);
+      navigate('/checkout');
+    } catch (error) {
+      alert('구매 처리에 실패했습니다. 다시 시도해주세요.');
+      console.error('Failed to buy now:', error);
+      setIsAddingToCart(false);
+    }
   };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -374,18 +408,22 @@ const ProductDetailPage: React.FC = () => {
                         size="large"
                         startIcon={<CartIcon />}
                         onClick={handleAddToCart}
+                        disabled={isAddingToCart}
                         sx={{ py: 1.5 }}
                       >
-                        장바구니 담기
+                        {isAddingToCart ? '담는 중...' : isInCart(product.id) 
+                          ? `장바구니에 ${getItemQuantity(product.id)}개 담김` 
+                          : '장바구니 담기'}
                       </Button>
                       <Button
                         variant="contained"
                         size="large"
                         startIcon={<BuyIcon />}
                         onClick={handleBuyNow}
+                        disabled={isAddingToCart}
                         sx={{ py: 1.5 }}
                       >
-                        바로 구매
+                        {isAddingToCart ? '처리 중...' : '바로 구매'}
                       </Button>
                     </>
                   ) : (

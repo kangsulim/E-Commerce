@@ -16,7 +16,7 @@ import {
   Select,
   MenuItem,
   InputLabel,
-  Grid2,
+  Grid,
   Chip,
 } from '@mui/material';
 import {
@@ -26,7 +26,7 @@ import {
   PhoneAndroid as PhoneIcon,
 } from '@mui/icons-material';
 import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { yupResolver } from '@hookform/resolvers/yup/dist/yup';
 import * as yup from 'yup';
 import { PaymentInfo, PaymentMethod } from '../../types/order';
 
@@ -203,9 +203,9 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
             <FormLabel component="legend" sx={{ mb: 2, fontWeight: 'bold' }}>
               결제 수단
             </FormLabel>
-            <Grid2 container spacing={2}>
+            <Grid container spacing={2}>
               {PAYMENT_METHODS.map((method) => (
-                <Grid2 xs={12} sm={6} key={method.value}>
+                <Grid item xs={12} sm={6} key={method.value}>
                   <Controller
                     name="method"
                     control={control}
@@ -248,9 +248,9 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
                       </Box>
                     )}
                   />
-                </Grid2>
+                </Grid>
               ))}
-            </Grid2>
+            </Grid>
           </FormControl>
 
           <Divider />

@@ -17,6 +17,7 @@ import RegisterPage from '../pages/RegisterPage';
 import MyPage from '../pages/MyPage';
 import OrderHistoryPage from '../pages/OrderHistoryPage';
 import OrderCompletePage from '../pages/OrderCompletePage';
+import OrderDetailPage from '../pages/OrderDetailPage';
 
 // 관리자 페이지들
 import AdminDashboard from '../pages/admin/AdminDashboard';
@@ -135,7 +136,7 @@ export const router = createBrowserRouter([
         path: 'orders/:orderId',
         element: (
           <ProtectedRoute requireAuth>
-            <OrderHistoryPage />
+            <OrderDetailPage />
           </ProtectedRoute>
         ),
       },

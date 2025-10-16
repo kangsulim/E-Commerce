@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { CartItem, CartState, CartActions, CartCalculation, CART_STORAGE_KEY } from '../types/cart';
+import { CartState, CartActions, CartCalculation, CART_STORAGE_KEY } from '../types/cart';
 import { Product } from '../types';
 import { cartService } from '../services/cart';
 import { calculateCartTotals } from '../data/mockCart';

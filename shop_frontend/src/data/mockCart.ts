@@ -1,5 +1,5 @@
-import { Cart, CartItem } from '../types';
-import { Product } from '../types';
+import { Cart, Product } from '../types';
+import { CartItem } from '../types/cart';
 import { mockProducts } from './mockProducts';
 
 // mockProducts의 타입을 CartItem에 맞게 변환

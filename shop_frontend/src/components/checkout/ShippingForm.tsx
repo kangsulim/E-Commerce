@@ -5,7 +5,7 @@ import {
   Typography,
   TextField,
   Button,
-  Grid2,
+
   FormControl,
   FormLabel,
   RadioGroup,
@@ -20,7 +20,7 @@ import {
   MyLocation as LocationIcon,
 } from '@mui/icons-material';
 import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { yupResolver } from '@hookform/resolvers/yup/dist/yup';
 import * as yup from 'yup';
 import { ShippingInfo } from '../../types/order';
 
